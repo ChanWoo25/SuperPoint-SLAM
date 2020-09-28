@@ -107,8 +107,12 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     
     
 
-    //Create KeyFrame Database
-    mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
+    // Create KeyFrame Database
+    // Have different member variables depending on the Voc.
+    if(mSensor == SP_MONOCULAR)
+        mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
+    else
+        mpKeyFrameDatabase = new KeyFrameDatabase(*mpSPVocabulary);
 
     //Create the Map
     mpMap = new Map();
