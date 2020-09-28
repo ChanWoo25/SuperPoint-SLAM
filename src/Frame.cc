@@ -247,13 +247,13 @@ Frame::Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> 
     mnId=nNextId++;
 
     // Scale Level Info
-    mnScaleLevels = mpORBextractorLeft->GetLevels();
-    mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
+    mnScaleLevels = mpSPDetector->GetLevels();
+    mfScaleFactor = mpSPDetector->GetScaleFactor();
     mfLogScaleFactor = log(mfScaleFactor);
-    mvScaleFactors = mpORBextractorLeft->GetScaleFactors();
-    mvInvScaleFactors = mpORBextractorLeft->GetInverseScaleFactors();
-    mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
-    mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
+    mvScaleFactors = mpSPDetector->GetScaleFactors();
+    mvInvScaleFactors = mpSPDetector->GetInverseScaleFactors();
+    mvLevelSigma2 = mpSPDetector->GetScaleSigmaSquares();
+    mvInvLevelSigma2 = mpSPDetector->GetInverseScaleSigmaSquares();
 
     // ORB extraction
     ExtractSP(imGray);

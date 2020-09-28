@@ -172,6 +172,9 @@ public:
     // Keypoints are assigned to cells in a grid to reduce matching complexity when projecting MapPoints.
     static float mfGridElementWidthInv;
     static float mfGridElementHeightInv;
+
+    // Contains the index of the key point corresponding to 
+    // the element of the [FRAME_GRID_COLS * FRAME_GRID_ROWS]-dimensional grid map. 
     std::vector<std::size_t> mGrid[FRAME_GRID_COLS][FRAME_GRID_ROWS];
 
     // Camera pose.
@@ -212,7 +215,9 @@ private:
     // Computes image bounds for the undistorted image (called in the constructor).
     void ComputeImageBounds(const cv::Mat &imLeft);
 
-    // Assign keypoints to the grid for speed up feature matching (called in the constructor).
+    // After Keypoint detection is complete,
+    // To accelerate matching, each keypoint is assigned to the grid map.
+    // (called in the constructor).
     void AssignFeaturesToGrid();
 
     // Rotation, translation and camera center

@@ -33,6 +33,28 @@ public:
                 float _IniThresSP, float _MinThresSP);
     ~SPDetector(){}
 
+    int inline GetLevels(){
+        return nlevels;}
+
+    float inline GetScaleFactor(){
+        return scaleFactor;}
+
+    std::vector<float> inline GetScaleFactors(){
+        return mvScaleFactor;
+    }
+
+    std::vector<float> inline GetInverseScaleFactors(){
+        return mvInvScaleFactor;
+    }
+
+    std::vector<float> inline GetScaleSigmaSquares(){
+        return mvLevelSigma2;
+    }
+
+    std::vector<float> inline GetInverseScaleSigmaSquares(){
+        return mvInvLevelSigma2;
+    }
+    
     /**
      * @brief Detect input image's Keypoints and Compute Descriptor.
      * 

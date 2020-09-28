@@ -123,7 +123,7 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
         mpSPDetector = new SuperPointSLAM::SPDetector(nFeatures,fScaleFactor,nLevels,fIniThresSP,fMinThresSP);
         mpIniSPDetector = new SuperPointSLAM::SPDetector(2*nFeatures,fScaleFactor,nLevels,fIniThresSP,fMinThresSP);
 
-        cout << endl  << "ORB Extractor Parameters: " << endl;
+        cout << endl  << "SuperPoint Detector Parameters: " << endl;
         cout << "- Number of Features: " << nFeatures << endl;
         cout << "- Scale Levels: " << nLevels << endl;
         cout << "- Scale Factor: " << fScaleFactor << endl;
