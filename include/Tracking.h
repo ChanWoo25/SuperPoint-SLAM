@@ -61,7 +61,7 @@ public:
     cv::Mat GrabImageStereo(const cv::Mat &imRectLeft,const cv::Mat &imRectRight, const double &timestamp);
     cv::Mat GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, const double &timestamp);
     cv::Mat GrabImageMonocular(const cv::Mat &im, const double &timestamp);
-    cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestamp, std::shared_ptr<SuperPointSLAM::SuperPoint> Model)
+    cv::Mat GrabImageSPMonocular(const cv::Mat &im, const double &timestamp, std::shared_ptr<SuperPointSLAM::SuperPoint> Model);
     
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
@@ -126,6 +126,10 @@ protected:
 
     // Map initialization for monocular
     void MonocularInitialization();
+    
+    // Map initialization for SuperPoint Monocular.
+    void SPMonocularInitialization();
+    
     void CreateInitialMapMonocular();
 
     void CheckReplacedInLastFrame();

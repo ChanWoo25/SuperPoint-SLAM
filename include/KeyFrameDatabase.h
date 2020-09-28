@@ -29,6 +29,8 @@
 #include "Frame.h"
 #include "ORBVocabulary.h"
 
+#include "SPVocabulary.h"
+
 #include<mutex>
 
 
@@ -44,6 +46,7 @@ class KeyFrameDatabase
 public:
 
     KeyFrameDatabase(const ORBVocabulary &voc);
+    KeyFrameDatabase(const SuperPointSLAM::SPVocabulary &voc);
 
    void add(KeyFrame* pKF);
 
@@ -61,6 +64,7 @@ protected:
 
   // Associated vocabulary
   const ORBVocabulary* mpVoc;
+  const SuperPointSLAM::SPVocabulary* mpSPVoc;
 
   // Inverted file
   std::vector<list<KeyFrame*> > mvInvertedFile;

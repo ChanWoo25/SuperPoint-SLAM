@@ -26,7 +26,6 @@
 #include <thread>
 #include <opencv2/core/core.hpp>
 #include <unistd.h>
-#include <torch/torch.h>
 
 #include "Tracking.h"
 #include "FrameDrawer.h"
@@ -36,9 +35,14 @@
 #include "LoopClosing.h"
 #include "KeyFrameDatabase.h"
 #include "ORBVocabulary.h"
-#include "SPVocabulary.h"
 #include "Viewer.h"
+
+/* SuperPoint Header files added for SP-SLAM. */
+#include <torch/torch.h> 
 #include "SuperPoint.h"
+#include "SPVocabulary.h"
+#include "SPMatcher.h"
+#include "SPDetector.h"
 
 namespace ORB_SLAM2
 {

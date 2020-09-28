@@ -312,9 +312,10 @@ void Tracking::Track()
     {
         if(mSensor==System::STEREO || mSensor==System::RGBD)
             StereoInitialization();
-        else
+        else if(mSensor==System::MONOCULAR)
             MonocularInitialization();
-
+        else
+            SPMonocularInitialization();
         mpFrameDrawer->Update(this);
 
         if(mState!=OK)
@@ -597,6 +598,7 @@ void Tracking::MonocularInitialization()
 
     if(!mpInitializer)
     {
+        // If there are more than 100 Keypoints in the current frame,
         // Set Reference Frame
         if(mCurrentFrame.mvKeys.size()>100)
         {
@@ -609,6 +611,9 @@ void Tracking::MonocularInitialization()
             if(mpInitializer)
                 delete mpInitializer;
 
+            /*  mCurrentFrame is set as the Reference Frame, 
+                Sigma(The parameter of standarde deviation and variance) is set to 1.0 
+                and RANSAC iteration is set to 200. */
             mpInitializer =  new Initializer(mCurrentFrame,1.0,200);
 
             fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
@@ -618,7 +623,9 @@ void Tracking::MonocularInitialization()
     }
     else
     {
-        // Try to initialize
+        /*  Try to initialize when more than 100 Keypoints are detected.
+            If the frame next to Reference Frame does not satisfy the condition,
+            Searches again from Reference Frame! */
         if((int)mCurrentFrame.mvKeys.size()<=100)
         {
             delete mpInitializer;
@@ -664,6 +671,81 @@ void Tracking::MonocularInitialization()
             CreateInitialMapMonocular();
         }
     }
+}
+
+void Tracking::SPMonocularInitialization()
+{
+
+    if(!mpInitializer)
+    {
+        // Set Reference Frame
+        if(mCurrentFrame.mvKeys.size()>100)
+        {
+            mInitialFrame = Frame(mCurrentFrame);
+            mLastFrame = Frame(mCurrentFrame);
+            mvbPrevMatched.resize(mCurrentFrame.mvKeysUn.size());
+            for(size_t i=0; i<mCurrentFrame.mvKeysUn.size(); i++)
+                mvbPrevMatched[i]=mCurrentFrame.mvKeysUn[i].pt;
+
+            if(mpInitializer)
+                delete mpInitializer;
+
+            mpInitializer =  new Initializer(mCurrentFrame,1.0,200);
+
+            fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
+
+            return;
+        }
+    }
+    else
+    {
+        // Try to initialize
+        if((int)mCurrentFrame.mvKeys.size()<=100)
+        {
+            delete mpInitializer;
+            mpInitializer = static_cast<Initializer*>(NULL);
+            fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
+            return;
+        }
+
+        // Find correspondences nn_ratio:0.9, Check orientation:false.
+        SuperPointSLAM::SPMatcher matcher(0.9,false);
+        int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
+
+        // Check if there are enough correspondences
+        if(nmatches<80)
+        {
+            delete mpInitializer;
+            mpInitializer = static_cast<Initializer*>(NULL);
+            return;
+        }
+
+        cv::Mat Rcw; // Current Camera Rotation
+        cv::Mat tcw; // Current Camera Translation
+        vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
+
+        if(mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated))
+        {
+            for(size_t i=0, iend=mvIniMatches.size(); i<iend;i++)
+            {
+                if(mvIniMatches[i]>=0 && !vbTriangulated[i])
+                {
+                    mvIniMatches[i]=-1;
+                    nmatches--;
+                }
+            }
+
+            // Set Frame Poses
+            mInitialFrame.SetPose(cv::Mat::eye(4,4,CV_32F)); // The pose of the first frame starts with Eye(4,4) Matrix.
+            cv::Mat Tcw = cv::Mat::eye(4,4,CV_32F);
+            Rcw.copyTo(Tcw.rowRange(0,3).colRange(0,3));
+            tcw.copyTo(Tcw.rowRange(0,3).col(3));
+            mCurrentFrame.SetPose(Tcw);
+
+            CreateInitialMapMonocular();
+        }
+    }
+
 }
 
 void Tracking::CreateInitialMapMonocular()

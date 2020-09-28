@@ -31,7 +31,13 @@ namespace ORB_SLAM2
 {
 
 KeyFrameDatabase::KeyFrameDatabase (const ORBVocabulary &voc):
-    mpVoc(&voc)
+    mpVoc(&voc), mpSPVoc(NULL)
+{
+    mvInvertedFile.resize(voc.size());
+}
+
+KeyFrameDatabase::KeyFrameDatabase (const SuperPointSLAM::SPVocabulary &voc):
+    mpVoc(NULL),mpSPVoc(&voc)
 {
     mvInvertedFile.resize(voc.size());
 }
@@ -130,7 +136,13 @@ vector<KeyFrame*> KeyFrameDatabase::DetectLoopCandidates(KeyFrame* pKF, float mi
         {
             nscores++;
 
-            float si = mpVoc->score(pKF->mBowVec,pKFi->mBowVec);
+            float si;
+            if(mpVoc != NULL){
+                si = mpVoc->score(pKF->mBowVec,pKFi->mBowVec);
+            }
+            else if(mpSPVoc != NULL){
+                si = mpSPVoc->score(pKF->mBowVec,pKFi->mBowVec);
+            }
 
             pKFi->mLoopScore = si;
             if(si>=minScore)
@@ -246,7 +258,15 @@ vector<KeyFrame*> KeyFrameDatabase::DetectRelocalizationCandidates(Frame *F)
         if(pKFi->mnRelocWords>minCommonWords)
         {
             nscores++;
-            float si = mpVoc->score(F->mBowVec,pKFi->mBowVec);
+            
+            float si;
+            if(mpVoc != NULL){
+                si = mpVoc->score(F->mBowVec,pKFi->mBowVec);
+            }
+            else if(mpSPVoc != NULL){
+                si = mpSPVoc->score(F->mBowVec,pKFi->mBowVec);
+            }
+
             pKFi->mRelocScore=si;
             lScoreAndMatch.push_back(make_pair(si,pKFi));
         }

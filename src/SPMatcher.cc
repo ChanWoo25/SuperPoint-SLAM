@@ -30,8 +30,11 @@
 namespace SuperPointSLAM
 {
 
-const float SPMatcher::TH_LOW = 50;
-const float SPMatcher::TH_HIGH = 100;
+/*  The distance of two SP Descriptors has a minimum of 0 and a maximum of 4.
+    TH_LOW is the threshold value that the calculated distance value strictly satisfies the condition */
+const float SPMatcher::TH_LOW = 1.5;
+/*  TH_HIGH is a slightly relaxed threshold. */
+const float SPMatcher::TH_HIGH = 2.5;
 
 const int SPMatcher::HISTO_LENGTH = 30;
 const int SPMatcher::DESCRIPTOR_LENGTH = 256;

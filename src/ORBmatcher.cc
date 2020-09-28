@@ -419,9 +419,12 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
     {
         cv::KeyPoint kp1 = F1.mvKeysUn[i1];
         int level1 = kp1.octave;
+
+        // ??
         if(level1>0)
             continue;
 
+        /* The indexes of "level1" keypoints existing in the patch centered on "vbPrevMatched[i1]" are extracted. */
         vector<size_t> vIndices2 = F2.GetFeaturesInArea(vbPrevMatched[i1].x,vbPrevMatched[i1].y, windowSize,level1,level1);
 
         if(vIndices2.empty())
@@ -429,6 +432,8 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
 
         cv::Mat d1 = F1.mDescriptors.row(i1);
 
+        /*  The distance is calculated by matching all Keypoints between 2 frames, 
+            and the most similar one and the second one are stored as an index. */
         int bestDist = INT_MAX;
         int bestDist2 = INT_MAX;
         int bestIdx2 = -1;
@@ -458,8 +463,10 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
 
         if(bestDist<=TH_LOW)
         {
+            // Extra Condition: Must be "0.9" times or less of "bestDist2" to pass.
             if(bestDist<(float)bestDist2*mfNNratio)
             {
+                /* F1's Keypoint that previously matched "bestIdx2" is removed. */
                 if(vnMatches21[bestIdx2]>=0)
                 {
                     vnMatches12[vnMatches21[bestIdx2]]=-1;
