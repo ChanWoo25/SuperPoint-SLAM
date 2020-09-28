@@ -67,8 +67,14 @@ public:
     string mSPWeightPath = "./superpoint.pt";
 
 public:
-
-    // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
+    /**
+     * @brief Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
+     * 
+     * @param strVocFile 
+     * @param strSettingsFile 
+     * @param sensor 
+     * @param bUseViewer 
+     */
     System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer = true);
 
     // Proccess the given stereo frame. Images must be synchronized and rectified.

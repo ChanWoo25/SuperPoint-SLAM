@@ -163,8 +163,14 @@ protected:
     ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
     ORBextractor* mpIniORBextractor;
 
+    //SuperPoint
+    SuperPointSLAM::SPDetector *mpSPDetector;
+    SuperPointSLAM::SPDetector *mpIniSPDetector;
+
     //BoW
     ORBVocabulary* mpORBVocabulary;
+    SuperPointSLAM::SPVocabulary* mpSPVocabulary;
+
     KeyFrameDatabase* mpKeyFrameDB;
 
     // Initalization (only for monocular)
