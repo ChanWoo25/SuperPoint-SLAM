@@ -62,10 +62,13 @@ public:
     // Constructor for Monocular cameras.
     Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 
-    // Constructor for Monocular cameras with SuperPoint Model..
+    // Extract SuperPoint's Keypoints on the image.
+    // 1. First, it stores basic information necessary for each frame.
+    // 2. Extract the keypoint from A and undistort it.
+    // 3. Assign Keypoints to the grid map.
     Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel, const double &timeStamp, SuperPointSLAM::SPDetector* extractor, SuperPointSLAM::SPVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
 
-    // Extract ORB on the image. 0 for left image and 1 for right image.
+    // Extract ORB feature on the image.
     void ExtractORB(int flag, const cv::Mat &im);
 
     // Extract Superpoint feature on the image. Just for mono image.
