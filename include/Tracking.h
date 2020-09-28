@@ -118,7 +118,10 @@ public:
 
 protected:
 
-    // Main tracking function. It is independent of the input sensor.
+    // Main tracking function. "It is independent of the input sensor."
+    // After all Frame() constructor is done,
+    // Initialization, Visualization update and Image matching 
+    // are repeated depending on several "State"
     void Track();
 
     // Map initialization for stereo and RGB-D
@@ -128,6 +131,8 @@ protected:
     void MonocularInitialization();
     
     // Map initialization for SuperPoint Monocular.
+    // Since Matcher type is different(SPDetector != ORBextractor), some changes were required.
+    // When using a monocular camera, Initialization is performed using two consecutive frames.
     void SPMonocularInitialization();
     
     void CreateInitialMapMonocular();
