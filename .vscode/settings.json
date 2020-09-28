@@ -68,6 +68,7 @@
         "set": "cpp",
         "string": "cpp",
         "variant": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "locale": "cpp"
     }
 }

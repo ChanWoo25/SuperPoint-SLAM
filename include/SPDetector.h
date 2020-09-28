@@ -14,6 +14,7 @@ namespace SuperPointSLAM
 
 
 #define EPSILON 1e-19
+#define HALF_PATCH_SIZE 15
 
 class SPDetector
 {
@@ -28,7 +29,8 @@ public:
      * @param _weight_dir the PATH that contains pretrained weight.
      * @param _use_cuda whether the model operates in cpu or gpu.
      */
-    SPDetector();
+    SPDetector(int _nfeatures, float _scaleFactor, int _nlevels,
+                float _IniThresSP, float _MinThresSP);
     ~SPDetector(){}
 
     /**
@@ -41,6 +43,8 @@ public:
                     std::vector<cv::KeyPoint>& _keypoints, cv::Mat &_descriptors);
 
     int n_keypoints;
+
+    std::vector<cv::Mat> mvImagePyramid;
 
 private:
     c10::TensorOptions tensor_opts;     // Contains necessary info for creating proper at::Tensor
@@ -68,8 +72,21 @@ private:
     float conf_thres=0.0625;             /// 각 픽셀의 기댓값: 1/64 = 0.015625
     float nn_thres;                     ///
     bool verbose = 0;                   ///
-    
-    
+
+    int nfeatures;
+    double scaleFactor;
+    int nlevels;
+    float IniThresSP;
+    float MinThresSP;
+
+    std::vector<int> mnFeaturesPerLevel;
+
+    std::vector<int> umax;
+
+    std::vector<float> mvScaleFactor;
+    std::vector<float> mvInvScaleFactor;    
+    std::vector<float> mvLevelSigma2;
+    std::vector<float> mvInvLevelSigma2;
 };
 
 }

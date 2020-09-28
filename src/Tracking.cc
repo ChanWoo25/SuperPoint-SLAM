@@ -114,26 +114,21 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     {
         // Load ORB parameters
 
-        int nFeatures = fSettings["ORBextractor.nFeatures"];
-        float fScaleFactor = fSettings["ORBextractor.scaleFactor"];
-        int nLevels = fSettings["ORBextractor.nLevels"];
-        int fIniThFAST = fSettings["ORBextractor.iniThFAST"];
-        int fMinThFAST = fSettings["ORBextractor.minThFAST"];
+        int nFeatures = fSettings["SPDetector.nFeatures"];
+        float fScaleFactor = fSettings["SPDetector.scaleFactor"];
+        int nLevels = fSettings["SPDetector.nLevels"];
+        float fIniThresSP = fSettings["SPDetector.IniThresSP"];
+        float fMinThresSP = fSettings["SPDetector.MinThresSP"];
 
-        mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-
-        if(sensor==System::STEREO)
-            mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
-
-        if(sensor==System::MONOCULAR)
-            mpIniORBextractor = new ORBextractor(2*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+        mpSPDetector = new SuperPointSLAM::SPDetector(nFeatures,fScaleFactor,nLevels,fIniThresSP,fMinThresSP);
+        mpIniSPDetector = new SuperPointSLAM::SPDetector(2*nFeatures,fScaleFactor,nLevels,fIniThresSP,fMinThresSP);
 
         cout << endl  << "ORB Extractor Parameters: " << endl;
         cout << "- Number of Features: " << nFeatures << endl;
         cout << "- Scale Levels: " << nLevels << endl;
         cout << "- Scale Factor: " << fScaleFactor << endl;
-        cout << "- Initial Fast Threshold: " << fIniThFAST << endl;
-        cout << "- Minimum Fast Threshold: " << fMinThFAST << endl;
+        cout << "- Initial Fast Threshold: " << fIniThresSP << endl;
+        cout << "- Minimum Fast Threshold: " << fMinThresSP << endl;
     }
     else
     {
