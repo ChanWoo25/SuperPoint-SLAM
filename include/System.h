@@ -65,6 +65,7 @@ public:
         SP_MONOCULAR=3
     };
     string mSPWeightPath = "./superpoint.pt";
+    std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel; 
 
 public:
     /**
@@ -198,7 +199,6 @@ private:
     std::mutex mMutexState;
 
     // If SP_MONOCULAR mode, This Superpoint model will be Initialized with model weight in 'weight_path'.
-    std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel; 
     c10::TensorOptions mTensorOptions;     // Contains necessary info for creating proper at::Tensor
     c10::DeviceType mDeviceType;        // If our device can use the GPU, it has 'kCUDA', otherwise it has 'kCPU'.
     c10::Device mDevice;                // c10::Device corresponding to mDeviceType.

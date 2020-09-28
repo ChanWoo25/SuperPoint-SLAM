@@ -113,7 +113,7 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     if(sensor == System::SP_MONOCULAR)
     {
         // Load ORB parameters
-
+        mpSPModel = mpSystem->mpSPModel;
         int nFeatures = fSettings["SPDetector.nFeatures"];
         float fScaleFactor = fSettings["SPDetector.scaleFactor"];
         int nLevels = fSettings["SPDetector.nLevels"];
@@ -290,7 +290,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
     return mCurrentFrame.mTcw.clone();
 }
 
-cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestamp, std::shared_ptr<SuperPointSLAM::SuperPoint> Model)
+cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestamp)
 {
     mImGray = im;
 
@@ -312,9 +312,9 @@ cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestam
 
     /* Create Frame Object. In Frame constructor, all keypoints are detected, and descripted. */
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
-        mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+        mCurrentFrame = Frame(mImGray, mpSPModel, timestamp, mpIniSPDetector, mpSPVocabulary, mK, mDistCoef, mbf, mThDepth);
     else
-        mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth);
+        mCurrentFrame = Frame(mImGray, mpSPModel, timestamp, mpSPDetector, mpSPVocabulary, mK, mDistCoef, mbf, mThDepth);
 
     Track();
 

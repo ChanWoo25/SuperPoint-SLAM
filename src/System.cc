@@ -349,7 +349,7 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     }
     }
 
-    cv::Mat Tcw = mpTracker->GrabImageSPMonocular(im,timestamp, mpSPModel);
+    cv::Mat Tcw = mpTracker->GrabImageSPMonocular(im,timestamp);
 
     unique_lock<mutex> lock2(mMutexState);
     mTrackingState = mpTracker->mState;

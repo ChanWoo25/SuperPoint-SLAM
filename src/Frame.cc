@@ -170,7 +170,18 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     AssignFeaturesToGrid();
 }
 
-
+/**
+ * @brief Construct a new Frame:: Frame object
+ * 
+ * @param imGray 
+ * @param timeStamp 
+ * @param extractor 
+ * @param voc 
+ * @param K 
+ * @param distCoef 
+ * @param bf 
+ * @param thDepth 
+ */
 Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
     :mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
      mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
