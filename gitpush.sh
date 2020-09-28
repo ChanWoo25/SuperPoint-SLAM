@@ -15,5 +15,5 @@ if [ $# -eq 0 ]; then
     echo "Please type some message to commit."
     exit
 fi
-
+# input arguments with " --- ".
 git add . && git commit -m "$@" && git push -u origin master
