@@ -810,6 +810,8 @@ void Tracking::CreateInitialMapMonocular()
         return;
     }
 
+    /** Scale Task Start **/
+
     // Scale initial baseline
     cv::Mat Tc2w = pKFcur->GetPose();
     Tc2w.col(3).rowRange(0,3) = Tc2w.col(3).rowRange(0,3)*invMedianDepth;
@@ -825,6 +827,7 @@ void Tracking::CreateInitialMapMonocular()
             pMP->SetWorldPos(pMP->GetWorldPos()*invMedianDepth);
         }
     }
+    /** Scale Task End **/
 
     mpLocalMapper->InsertKeyFrame(pKFini);
     mpLocalMapper->InsertKeyFrame(pKFcur);
@@ -875,10 +878,19 @@ bool Tracking::TrackReferenceKeyFrame()
 
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.7,true);
     vector<MapPoint*> vpMapPointMatches;
 
-    int nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
+    int nmatches;
+    if(mSensor == System::SP_MONOCULAR)
+    {   
+        SuperPointSLAM::SPMatcher matcher(0.7, false);
+        nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
+    }
+    else
+    {
+        ORBmatcher matcher(0.7,true);
+        nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
+    }
 
     if(nmatches<15)
         return false;
