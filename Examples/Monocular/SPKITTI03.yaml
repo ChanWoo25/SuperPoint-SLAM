@@ -5,10 +5,10 @@
 #--------------------------------------------------------------------------------------------
 
 # Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 707.0912
-Camera.fy: 707.0912
-Camera.cx: 601.8873
-Camera.cy: 183.1104
+Camera.fx: 721.5377
+Camera.fy: 721.5377
+Camera.cx: 609.5593
+Camera.cy: 172.854
 
 Camera.k1: 0.0
 Camera.k2: 0.0
@@ -22,24 +22,24 @@ Camera.fps: 10.0
 Camera.RGB: 1
 
 #--------------------------------------------------------------------------------------------
-# ORB Parameters
+# SuperPoint Parameters
 #--------------------------------------------------------------------------------------------
 
-# ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 2000
+# SuperPoint Detector: Number of features per image
+SPDetector.nFeatures: 500
 
-# ORB Extractor: Scale factor between levels in the scale pyramid
-ORBextractor.scaleFactor: 1.2
+# SuperPoint Detector: Scale factor between levels in the scale pyramid 
+SPDetector.scaleFactor: 2
 
-# ORB Extractor: Number of levels in the scale pyramid
-ORBextractor.nLevels: 8
+# SuperPoint Detector: Number of levels in the scale pyramid
+SPDetector.nLevels: 1
 
-# ORB Extractor: Fast threshold
-# Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
-# Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
-# You can lower these values if your images have low contrast
-ORBextractor.iniThFAST: 20
-ORBextractor.minThFAST: 7
+## ORB Extractor: Fast threshold
+## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+## Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+## You can lower these values if your images have low contrast
+SPDetector.iniThFAST: 0.0625
+SPDetector.minThFAST: 0.05
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters

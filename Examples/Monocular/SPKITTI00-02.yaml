@@ -26,7 +26,7 @@ Camera.RGB: 1
 #--------------------------------------------------------------------------------------------
 
 # SuperPoint Detector: Number of features per image
-SPDetector.nFeatures: 2000
+SPDetector.nFeatures: 500
 
 # SuperPoint Detector: Scale factor between levels in the scale pyramid 
 SPDetector.scaleFactor: 2
@@ -38,8 +38,8 @@ SPDetector.nLevels: 1
 ## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 ## Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 ## You can lower these values if your images have low contrast
-SPDetector.iniThFAST: 20
-SPDetector.minThFAST: 7
+SPDetector.iniThFAST: 0.0625
+SPDetector.minThFAST: 0.05
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
