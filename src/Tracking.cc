@@ -992,31 +992,65 @@ void Tracking::UpdateLastFrame()
 
 bool Tracking::TrackWithMotionModel()
 {
-    ORBmatcher matcher(0.9,true);
-
-    // Update last frame pose according to its reference keyframe
-    // Create "visual odometry" points if in Localization Mode
-    UpdateLastFrame();
-
-    mCurrentFrame.SetPose(mVelocity*mLastFrame.mTcw);
-
-    fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-
-    // Project points seen in previous frame
-    int th;
-    if(mSensor!=System::STEREO)
-        th=15;
-    else
-        th=7;
-    int nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,th,mSensor==System::MONOCULAR);
-
-    // If few matches, uses a wider window search
-    if(nmatches<20)
+    int nmatches, th;
+     
+    if(mSensor == System::SP_MONOCULAR)
     {
-        fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-        nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,2*th,mSensor==System::MONOCULAR);
-    }
+        SuperPointSLAM::SPMatcher matcher(0.9,true);
 
+        // Update last frame pose according to its reference keyframe
+        // Create "visual odometry" points if in Localization Mode
+        UpdateLastFrame();
+
+        mCurrentFrame.SetPose(mVelocity*mLastFrame.mTcw);
+
+        fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+
+        // Project points seen in previous frame
+        th;
+        if(mSensor!=System::STEREO)
+            th=15;
+        else
+            th=7;
+        nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,th,1);
+
+        // If few matches, uses a wider window search
+        if(nmatches<20)
+        {
+            fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+            nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,2*th,1);
+        }
+
+    }
+    else
+    {
+        ORBmatcher matcher(0.9,true);
+
+        // Update last frame pose according to its reference keyframe
+        // Create "visual odometry" points if in Localization Mode
+        UpdateLastFrame();
+
+        mCurrentFrame.SetPose(mVelocity*mLastFrame.mTcw);
+
+        fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+
+        // Project points seen in previous frame
+        th;
+        if(mSensor!=System::STEREO)
+            th=15;
+        else
+            th=7;
+        nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,th,mSensor==System::MONOCULAR);
+
+        // If few matches, uses a wider window search
+        if(nmatches<20)
+        {
+            fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+            nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,2*th,mSensor==System::MONOCULAR);
+        }
+    }
+    
+    
     if(nmatches<20)
         return false;
 
