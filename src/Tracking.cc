@@ -1004,21 +1004,18 @@ bool Tracking::TrackWithMotionModel()
 
         mCurrentFrame.SetPose(mVelocity*mLastFrame.mTcw);
 
-        fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
+        fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        th;
-        if(mSensor!=System::STEREO)
-            th=15;
-        else
-            th=7;
-        nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,th,1);
+        th = 15;
+        nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, 1);
 
         // If few matches, uses a wider window search
         if(nmatches<20)
         {
+            th *= 2;
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-            nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,2*th,1);
+            nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, 1);
         }
 
     }
@@ -1045,8 +1042,9 @@ bool Tracking::TrackWithMotionModel()
         // If few matches, uses a wider window search
         if(nmatches<20)
         {
+            th *= 2;
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-            nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,2*th,mSensor==System::MONOCULAR);
+            nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, mSensor==System::MONOCULAR);
         }
     }
     
