@@ -72,7 +72,7 @@ public:
      * @brief Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
      * 
      * @param strVocFile 
-     * @param strSettingsFile 
+     * @param strSettingsFile "The configuration file" is loaded depending on the dataset
      * @param sensor 
      * @param bUseViewer 
      */
@@ -94,9 +94,15 @@ public:
     // Returns the camera pose (empty if tracking fails).
     cv::Mat TrackMonocular(const cv::Mat &im, const double &timestamp);
 
-    // Process the given monocular frame using SuperPoint model.
-    // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
-    // Returns the camera pose (empty if tracking fails).
+    /**
+     * @brief Process the given monocular frame using SuperPoint model. 
+     * This function keeps detecting the flow of SLAM. 
+     * Sometimes it is reset. And Calling "GrabImageSPMonocular()"
+     * 
+     * @param im Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
+     * @param timestamp 
+     * @return Returns "The camera pose" Otherwise, returns "Empty" if tracking fails.
+     */
     cv::Mat TrackSPMonocular(const cv::Mat &im, const double &timestamp);
 
     // This stops local mapping thread (map building) and performs only camera tracking.

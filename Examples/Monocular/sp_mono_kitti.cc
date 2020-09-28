@@ -35,6 +35,11 @@ using namespace std;
 void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
                 vector<double> &vTimestamps);
 
+/** 
+ * Run SuperPoint-SLAM with Kitti Dataset.
+ * Distortion Coefficients are all zeros. k1 = k2 = p1 = p2 = 0.
+ * 
+ */
 int main(int argc, char **argv)
 {
     if(argc != 4)
