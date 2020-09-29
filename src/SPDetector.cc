@@ -108,7 +108,12 @@ SPDetector::SPDetector(int _nfeatures, float _scaleFactor, int _nlevels,
 void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel,
                     std::vector<cv::KeyPoint>& _keypoints, cv::Mat &_descriptors)
 {
+    if(_image.empty())
+        return;
+
     cv::Mat img = _image.getMat();
+    assert(img.type() == CV_8UC1 );
+
     at::Tensor x = torch::from_blob((void*)img.clone().data, \
                                     {1, 1, img.rows, img.cols}, \
                                     tensor_opts).to(mDevice);
@@ -122,7 +127,7 @@ void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::S
 
     /* Return a "CUDA bool type Tensor"
      * 1 if there is a featrue, and 0 otherwise */ 
-    at::Tensor kpts = (mProb > conf_thres);  
+    at::Tensor kpts = (mProb > IniThresSP);  
     
     /* Remove potential redundent features. */
     if(nms) 
@@ -175,7 +180,7 @@ void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::S
         float conf = mProb[kpts[i][0]][kpts[i][1]].item<float>();
         _keypoints.push_back(cv::KeyPoint(cv::Point((int)x, (int)y), 1.0, 0.0, conf));
     }
-    
+    std::cout << "(Keypoints:" << _keypoints.size() << ")--";
     mProb.reset();
     mDesc.reset();
 }

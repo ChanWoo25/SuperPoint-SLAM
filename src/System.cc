@@ -84,7 +84,14 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     {
         cout << endl << "Loading SuperPoint Vocabulary. This could take a while..." << endl;
 
-        mpSPVocabulary = new SuperPointSLAM::SPVocabulary(strVocFile);
+        mpSPVocabulary = new SuperPointSLAM::SPVocabulary();
+        bool bVocLoad = mpSPVocabulary->loadFromTextFile(strVocFile);
+        if(!bVocLoad)
+        {
+            cerr << "Wrong path to vocabulary. " << endl;
+            cerr << "Falied to open at: " << strVocFile << endl;
+            exit(-1);
+        }
         cout << "Vocabulary loaded!" << endl << endl;
     }
     else
@@ -107,9 +114,9 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     // Create KeyFrame Database
     // Have different member variables depending on the Voc.
     if(mSensor == SP_MONOCULAR)
-        mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
-    else
         mpKeyFrameDatabase = new KeyFrameDatabase(*mpSPVocabulary);
+    else
+        mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
     cout << "Database done\n";
     //Create the Map
     mpMap = new Map();
@@ -312,6 +319,7 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
         cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
         exit(-1);
     }
+    // cout << "TrackSP-";
 
     // Check mode change
     {
@@ -336,6 +344,7 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
             mbDeactivateLocalizationMode = false;
         }
     }
+    // cout << "chkmod-";
 
     // Check reset
     {
@@ -346,6 +355,7 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
         mbReset = false;
     }
     }
+    // cout << "chkreset-";
 
     cv::Mat Tcw = mpTracker->GrabImageSPMonocular(im,timestamp);
 

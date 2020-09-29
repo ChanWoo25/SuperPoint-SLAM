@@ -69,6 +69,8 @@
         "string": "cpp",
         "variant": "cpp",
         "__nullptr": "cpp",
-        "locale": "cpp"
+        "locale": "cpp",
+        "*.txx": "cpp",
+        "__config": "cpp"
     }
 }

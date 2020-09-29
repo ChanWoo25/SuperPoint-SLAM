@@ -245,7 +245,7 @@ Frame::Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> 
 
     // ORB extraction
     ExtractSP(imGray);
-
+    cout << "Detect--";
     N = mvKeys.size();
 
     if(mvKeys.empty())
