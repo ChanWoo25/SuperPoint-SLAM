@@ -341,6 +341,7 @@ void Tracking::Track()
             MonocularInitialization();
         else
             SPMonocularInitialization();
+
         mpFrameDrawer->Update(this);
 
         if(mState!=OK)
@@ -363,13 +364,15 @@ void Tracking::Track()
                 CheckReplacedInLastFrame();
 
                 if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
-                {
+                {   /*  When there is 'no Motion model' in the first place, 
+                        or it is not long since the last Relocalization, */
                     bOK = TrackReferenceKeyFrame();
                 }
                 else
-                {
+                {   /* Normal behaviour -- Tracking assuming constant velocity motion */
                     bOK = TrackWithMotionModel();
-                    if(!bOK)
+                    /* If failed, Tracking with Vocabulary. */
+                    if(!bOK) 
                         bOK = TrackReferenceKeyFrame();
                 }
             }
@@ -401,7 +404,7 @@ void Tracking::Track()
                         bOK = TrackReferenceKeyFrame();
                     }
                 }
-                else
+                else    /* LOCALIZATION MODE */
                 {
                     // In last frame we tracked mainly "visual odometry" points.
 
@@ -452,7 +455,8 @@ void Tracking::Track()
 
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
-        // If we have an initial estimation of the camera pose and matching. Track the local map.
+        /*  If we have an initial estimation of the camera pose and matching. Track the local map.
+            At this moment, "bOK" indicates whether the camera pose estimation was successful. */
         if(!mbOnlyTracking)
         {
             if(bOK)
@@ -478,7 +482,7 @@ void Tracking::Track()
         // If tracking were good, check if we insert a keyframe
         if(bOK)
         {
-            // Update motion model
+            /* Update "Motion model" */ 
             if(!mLastFrame.mTcw.empty())
             {
                 cv::Mat LastTwc = cv::Mat::eye(4,4,CV_32F);
@@ -528,9 +532,9 @@ void Tracking::Track()
 
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
-        {
+        {   // (SPTODO - Parameter Adjustment)
             if(mpMap->KeyFramesInMap()<=5)
-            {
+            {   
                 cout << "Track lost soon after initialisation, reseting..." << endl;
                 mpSystem->Reset();
                 return;
@@ -540,6 +544,7 @@ void Tracking::Track()
         if(!mCurrentFrame.mpReferenceKF)
             mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
+        
         mLastFrame = Frame(mCurrentFrame);
     }
 
@@ -1145,12 +1150,19 @@ bool Tracking::TrackLocalMap()
         }
     }
 
-    // Decide if the tracking was succesful
-    // More restrictive if there was a relocalization recently
-    if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
+    /*  Decide if the tracking was succesful
+        More restrictive if there was a relocalization recently 
+        If SuperPoint-SLAM, Less restrictive (SPTODO - Parameter Adjustment)*/ 
+    int first_constraint = 50, second_constraint = 30;
+
+    if(mSensor == System::SP_MONOCULAR)
+        first_constraint = 30, second_constraint = 20;
+    
+    if((mCurrentFrame.mnId < mnLastRelocFrameId+mMaxFrames) && 
+       (mnMatchesInliers < first_constraint))
         return false;
 
-    if(mnMatchesInliers<30)
+    if(mnMatchesInliers < second_constraint)
         return false;
     else
         return true;

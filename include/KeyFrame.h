@@ -215,8 +215,11 @@ protected:
 
     // Spanning Tree and Loop Edges
     bool mbFirstConnection;
-    KeyFrame* mpParent;
+    // Pointer to parent keyframe
+    KeyFrame* mpParent; 
+    // Set of child keyframe pointers that have this keyframe as parent
     std::set<KeyFrame*> mspChildrens;
+    // A set of keyframe pointers leading to this Keyframe as Loop.
     std::set<KeyFrame*> mspLoopEdges;
 
     // Bad flags

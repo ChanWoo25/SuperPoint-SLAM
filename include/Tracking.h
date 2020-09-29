@@ -138,7 +138,13 @@ protected:
     void CreateInitialMapMonocular();
 
     void CheckReplacedInLastFrame();
+
+    // When there is no available motion model, tracking is performed with this function.
+    // 1. Compute BoW vector and Match two Frames' Keypoints depending on mSensor.
+    // 2. If there're more than 15 matches, Process 'SetPose' and 'Pose Optimization'.
+    // 3. Remove Outliers, and return True if there are more than 10 matches left.
     bool TrackReferenceKeyFrame();
+
     void UpdateLastFrame();
     bool TrackWithMotionModel();
 
@@ -146,6 +152,9 @@ protected:
 
     void UpdateLocalMap();
     void UpdateLocalPoints();
+
+    // A function that updates "mvpLocalKeyFrames" 
+    // by finding Local KeyFrames that matches the condition of ORB-SLAM2.
     void UpdateLocalKeyFrames();
 
     bool TrackLocalMap();
@@ -184,7 +193,12 @@ protected:
 
     //Local Map
     KeyFrame* mpReferenceKF;
+
+    // A vector with keyframes connected by 
+    // "having a map point in common" with the current keyframe
     std::vector<KeyFrame*> mvpLocalKeyFrames;
+
+    // A set of MapPoint Pointers contained by Local Keyframes.
     std::vector<MapPoint*> mvpLocalMapPoints;
     
     // System
@@ -222,6 +236,8 @@ protected:
     KeyFrame* mpLastKeyFrame;
     Frame mLastFrame;
     unsigned int mnLastKeyFrameId;
+
+    // "ID of the frame" that succeeded in the last Relocalization.
     unsigned int mnLastRelocFrameId;
 
     //Motion Model

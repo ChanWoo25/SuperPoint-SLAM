@@ -183,9 +183,8 @@ public:
     // Camera pose.
     cv::Mat mTcw;
 
-    // Current and Next Frame id.
-    static long unsigned int nNextId;
-    long unsigned int mnId;
+    static long unsigned int nNextId;   // Next Frame Id (Static variable : Initialized only once!)
+    long unsigned int mnId;             // Current Frame Id (Each Frame has own Id.)
 
     // Reference Keyframe.
     KeyFrame* mpReferenceKF;
