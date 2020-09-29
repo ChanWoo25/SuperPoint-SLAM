@@ -111,8 +111,8 @@ void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::S
     if(_image.empty())
         return;
 
-    cv::Mat img = _image.getMat();
-    assert(img.type() == CV_8UC1 );
+    cv::Mat img = _image.getMat().clone();
+    img.convertTo(img, CV_32F);
 
     at::Tensor x = torch::from_blob((void*)img.clone().data, \
                                     {1, 1, img.rows, img.cols}, \
