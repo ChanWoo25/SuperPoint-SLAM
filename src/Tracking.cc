@@ -335,6 +335,7 @@ void Tracking::Track()
 
     if(mState==NOT_INITIALIZED)
     {
+        /* Try Initialization */
         if(mSensor==System::STEREO || mSensor==System::RGBD)
             StereoInitialization();
         else if(mSensor==System::MONOCULAR)
@@ -343,7 +344,9 @@ void Tracking::Track()
             SPMonocularInitialization();
 
         mpFrameDrawer->Update(this);
-
+        
+        /*  At this moment,
+            If Initialization is done Successful, "mState == OK" */ 
         if(mState!=OK)
             return;
     }
@@ -377,7 +380,7 @@ void Tracking::Track()
                 }
             }
             else
-            {
+            {   // If mState == LOST, do Relocalization.
                 bOK = Relocalization();
             }
         }
@@ -544,7 +547,7 @@ void Tracking::Track()
         if(!mCurrentFrame.mpReferenceKF)
             mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
-        
+
         mLastFrame = Frame(mCurrentFrame);
     }
 

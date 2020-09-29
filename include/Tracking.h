@@ -135,6 +135,7 @@ protected:
     // When using a monocular camera, Initialization is performed using two consecutive frames.
     void SPMonocularInitialization();
     
+    // Finally, mState = OK;
     void CreateInitialMapMonocular();
 
     void CheckReplacedInLastFrame();
