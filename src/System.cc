@@ -31,7 +31,8 @@ namespace ORB_SLAM2
 
 System::System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor,
                const bool bUseViewer):mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false),mbActivateLocalizationMode(false),
-        mbDeactivateLocalizationMode(false)
+        mbDeactivateLocalizationMode(false), mDeviceType((torch::cuda::is_available()) ? c10::kCUDA : c10::kCPU),
+        mDevice(c10::Device(mDeviceType))
 {
     // Output welcome message
     cout << endl <<
@@ -61,10 +62,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
                         .dtype(torch::kFloat32)
                         .layout(c10::kStrided)
                         .requires_grad(false);
-
-        int _use_cuda = torch::cuda::is_available();
-        mDeviceType = (_use_cuda) ? c10::kCUDA : c10::kCPU;
-        mDevice = c10::Device(mDeviceType);
 
         if (mDeviceType == c10::kCUDA)
             mpSPModel->to(mDevice);
