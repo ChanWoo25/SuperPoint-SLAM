@@ -189,10 +189,10 @@ void SPDetector::SemiNMS(at::Tensor& kpts)
     int rowlen = kpts.size(0);
     int collen = kpts.size(1);
 
-    //auto accessor = kpts.accessor<bool,2>();
-    auto pT1 = kpts.data_ptr<bool>();
-    auto pT2 = pT1 + collen;
-    auto pT3 = pT2 + collen;
+    //Booltype Accessor = kpts.accessor<bool,2>();
+    bool* pT1 = kpts.data_ptr<bool>();
+    bool* pT2 = pT1 + collen;
+    bool* pT3 = pT2 + collen;
 
     for(int i = 0; i < rowlen; i++)
     {

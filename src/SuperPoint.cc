@@ -52,13 +52,13 @@ void SuperPoint::forward(torch::Tensor& x, torch::Tensor& Prob, torch::Tensor& D
     x = relu(conv4b->forward(x));
 
     //DETECTOR
-    auto cPa = relu(convPa->forward(x));
-    auto semi = convPb->forward(cPa); // [B, 65, H/8, W/8]
+    at::Tensor cPa = relu(convPa->forward(x));
+    at::Tensor semi = convPb->forward(cPa); // [B, 65, H/8, W/8]
 
     //DESCRIPTOR
-    auto cDa = relu(convDa->forward(x));
-    auto desc = convDb->forward(cDa); // [B, 256, H/8, W/8]
-    auto dn = norm(desc, 2, 1);
+    at::Tensor cDa = relu(convDa->forward(x));
+    at::Tensor desc = convDb->forward(cDa); // [B, 256, H/8, W/8]
+    at::Tensor dn = norm(desc, 2, 1);
     desc = at::div((desc + EPSILON), unsqueeze(dn, 1));
 
     //DETECTOR - POST PROCESS
