@@ -1653,7 +1653,7 @@ float SPMatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
     float s = dist.at<float>(0);
     s /= 256;
 
-    return s;
+    return std::sqrt(s);
 }
 
 } //namespace ORB_SLAM
