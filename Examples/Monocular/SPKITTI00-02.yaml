@@ -38,8 +38,8 @@ SPDetector.nLevels: 1
 ## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 ## Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 ## You can lower these values if your images have low contrast
-SPDetector.IniThresSP: 0.025
-SPDetector.MinThresSP: 0.0125
+SPDetector.IniThresSP: 0.05
+SPDetector.MinThresSP: 0.0375
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters

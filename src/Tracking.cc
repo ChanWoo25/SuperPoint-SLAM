@@ -326,7 +326,7 @@ void Tracking::Track()
 {
     // cout << "Track-";
     if(mState==NO_IMAGES_YET)
-    {
+    {   cout << "NoImgYet-";
         mState = NOT_INITIALIZED;
     }
 
@@ -350,7 +350,10 @@ void Tracking::Track()
         /*  At this moment,
             If Initialization is done Successful, "mState == OK" */ 
         if(mState!=OK)
+        {
+            cout << "InitFail-";
             return;
+        }
     }
     else
     {
@@ -728,7 +731,7 @@ void Tracking::SPMonocularInitialization()
             mpInitializer =  new Initializer(mCurrentFrame,1.0,200);
 
             fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
-
+            cout << "RF-";
             return;
         }
     }
@@ -744,17 +747,20 @@ void Tracking::SPMonocularInitialization()
         }
 
         // Find correspondences nn_ratio:0.9, Check orientation:false.
+        cout << "CF-TryMatch-";
         SuperPointSLAM::SPMatcher matcher(0.9,false);
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
 
         // Check if there are enough correspondences
         if(nmatches<80)
         {
+            cout << "NotEnough-";
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             return;
         }
 
+        cout << "Enough-";
         cv::Mat Rcw; // Current Camera Rotation
         cv::Mat tcw; // Current Camera Translation
         vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)

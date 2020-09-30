@@ -319,7 +319,6 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
         cerr << "ERROR: you called TrackMonocular but input sensor was not set to Monocular." << endl;
         exit(-1);
     }
-    // cout << "TrackSP-";
 
     // Check mode change
     {
@@ -344,18 +343,16 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
             mbDeactivateLocalizationMode = false;
         }
     }
-    // cout << "chkmod-";
 
     // Check reset
     {
     unique_lock<mutex> lock(mMutexReset);
     if(mbReset)
-    {
+    {   cout << "Reset-";
         mpTracker->Reset();
         mbReset = false;
     }
     }
-    // cout << "chkreset-";
 
     cv::Mat Tcw = mpTracker->GrabImageSPMonocular(im,timestamp);
 
