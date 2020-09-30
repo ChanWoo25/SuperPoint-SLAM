@@ -30,9 +30,10 @@
 namespace SuperPointSLAM
 {
 
-/*  The distance of two SP Descriptors has a minimum of 0 and a maximum of 4.
-    TH_LOW is the threshold value that the calculated distance value strictly satisfies the condition */
-const float SPMatcher::TH_LOW = 1.5;
+//  The distance of two SP Descriptors has a minimum of 0 and a maximum of 4.
+//  TH_LOW is the threshold value that the calculated distance value strictly satisfies the condition
+//  "TH_LOW" has a value that empirically suitable for Initialization.
+const float SPMatcher::TH_LOW = 0.01; 
 /*  TH_HIGH is a slightly relaxed threshold. */
 const float SPMatcher::TH_HIGH = 2.5;
 
@@ -406,6 +407,7 @@ int SPMatcher::SearchByProjection(KeyFrame* pKF, cv::Mat Scw, const vector<MapPo
 int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f> &vbPrevMatched, vector<int> &vnMatches12, int windowSize)
 {
     int nmatches=0;
+    // cout << "mvKeysUn(" << F1.mvKeysUn.size() << ", " << F2.mvKeysUn.size() << ")-";
     vnMatches12 = vector<int>(F1.mvKeysUn.size(),-1);
 
     vector<int> rotHist[HISTO_LENGTH];
@@ -416,6 +418,10 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
     vector<float> vMatchedDistance(F2.mvKeysUn.size(),4);
     vector<int> vnMatches21(F2.mvKeysUn.size(),-1);
 
+    // For Debug
+    float D_dist_mean=0; int D_cnt=0;
+    //  cout << "oc(" << F1.mvKeysUn[0].octave << ")-";
+
     for(size_t i1=0, iend1=F1.mvKeysUn.size(); i1<iend1; i1++)
     {
         cv::KeyPoint kp1 = F1.mvKeysUn[i1];
@@ -424,43 +430,60 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
             continue;
 
         vector<size_t> vIndices2 = F2.GetFeaturesInArea(vbPrevMatched[i1].x,vbPrevMatched[i1].y, windowSize,level1,level1);
+        // if(i1 % 10 == 0) // Debug - Pass
+        // {
+        //     stringstream ss;
+        //     for(unsigned i=0; i<vIndices2.size(); i++)
+        //         ss << vIndices2[i] << ',';
+        //     cout << '\n' << ss.str() << endl;
+        // }
+        // cout << "Indicesz:" << vIndices2.size() << "-";
 
-        if(vIndices2.empty())
+        if(vIndices2.empty()) // Pass
             continue;
 
         cv::Mat d1 = F1.mDescriptors.row(i1);
+        // cout << "d1: " << d1 << endl;
 
-        float bestDist = 4;
-        float bestDist2 = 4;
+        float bestDist = 4.0;
+        float bestDist2 = 4.0;
         int bestIdx2 = -1;
+
 
         for(vector<size_t>::iterator vit=vIndices2.begin(); vit!=vIndices2.end(); vit++)
         {
             size_t i2 = *vit;
 
             cv::Mat d2 = F2.mDescriptors.row(i2);
+            // cout << "d2: " << d2 << endl;
+
 
             float dist = DescriptorDistance(d1,d2);
+            
+            D_dist_mean+=dist; D_cnt++; // For Debug
 
-            if(vMatchedDistance[i2]<=dist)
+            if(vMatchedDistance[i2]<=dist) // Pass
                 continue;
-
-            if(dist<bestDist)
+            
+            if(dist < bestDist)
             {
                 bestDist2=bestDist;
                 bestDist=dist;
                 bestIdx2=i2;
             }
-            else if(dist<bestDist2)
+            else if(dist < bestDist2)
             {
+                // if(dist == bestDist)  // For Debug : ISSUE
+                //     continue;
                 bestDist2=dist;
             }
         }
+        // cout << "Best(" << bestDist << ", " << bestDist2 << ")-";
 
         if(bestDist<=TH_LOW)
         {
-            if(bestDist<(float)bestDist2*mfNNratio)
-            {
+            if(bestDist < (float)bestDist2 * mfNNratio)
+            {   
                 if(vnMatches21[bestIdx2]>=0)
                 {
                     vnMatches12[vnMatches21[bestIdx2]]=-1;
@@ -471,7 +494,8 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
                 vMatchedDistance[bestIdx2]=bestDist;
                 nmatches++;
 
-                if(mbCheckOrientation)
+                /* Not Use */
+                if(mbCheckOrientation) 
                 {
                     float rot = F1.mvKeysUn[i1].angle-F2.mvKeysUn[bestIdx2].angle;
                     if(rot<0.0)
@@ -486,9 +510,11 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
         }
 
     }
+    // cout << "Mean(" << D_dist_mean/D_cnt << ", " << D_cnt << ")-";
 
     if(mbCheckOrientation)
     {
+        cout << "DoOriChk-"; 
         int ind1=-1;
         int ind2=-1;
         int ind3=-1;
@@ -1648,7 +1674,7 @@ void SPMatcher::ComputeThreeMaxima(vector<int>* histo, const int L, int &ind1, i
 float SPMatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
     cv::Mat dist = a - b;
-    dist = a * a.t();
+    dist = dist * dist.t();
 
     float s = dist.at<float>(0);
     s /= 256;

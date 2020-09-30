@@ -749,18 +749,18 @@ void Tracking::SPMonocularInitialization()
         // Find correspondences nn_ratio:0.9, Check orientation:false.
         cout << "CF-TryMatch-";
         SuperPointSLAM::SPMatcher matcher(0.9,false);
-        int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,100);
+        int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,50);
 
         // Check if there are enough correspondences
         if(nmatches<80)
         {
-            cout << "NotEnough-";
+            cout << "NotEnough(" << nmatches << "s)-";
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             return;
         }
 
-        cout << "Enough-";
+        cout << "Enough(" << nmatches << "s)-";;
         cv::Mat Rcw; // Current Camera Rotation
         cv::Mat tcw; // Current Camera Translation
         vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
