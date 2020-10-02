@@ -115,6 +115,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     // Compute ratio of scores
     float RH = SH/(SH+SF);
 
+    cout << ((RH>0.4)?"selH-":"selF-"); 
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
     if(RH>0.40)
         return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
@@ -160,6 +161,9 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
             vPn2i[j] = vPn2[mvMatches12[idx].second];
         }
 
+        // Find "the most optimal solution" that can be found using 8 matches.
+        // The obtained Homography Matrix represents the transformation 
+        // from coordinate 1 before correction to coordinate 2 before correction.
         cv::Mat Hn = ComputeH21(vPn1i,vPn2i);
         H21i = T2inv*Hn*T1;
         H12i = H21i.inv();
@@ -174,7 +178,6 @@ void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, c
         }
     }
 }
-
 
 void Initializer::FindFundamental(vector<bool> &vbMatchesInliers, float &score, cv::Mat &F21)
 {
@@ -225,7 +228,6 @@ void Initializer::FindFundamental(vector<bool> &vbMatchesInliers, float &score, 
         }
     }
 }
-
 
 cv::Mat Initializer::ComputeH21(const vector<cv::Point2f> &vP1, const vector<cv::Point2f> &vP2)
 {
@@ -479,6 +481,10 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers, cv::Mat &F21, cv:
         if(vbMatchesInliers[i])
             N++;
 
+#ifdef DEBUG
+    cout << "FInlier(" << N << ")-";
+#endif
+
     // Compute Essential Matrix from Fundamental Matrix
     cv::Mat E21 = K.t()*F21*K;
 
@@ -581,12 +587,16 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
         if(vbMatchesInliers[i])
             N++;
 
+#ifdef DEBUG
+    cout << "HInlier(" << N << ")-";
+#endif
     // We recover 8 motion hypotheses using the method of Faugeras et al.
     // Motion and structure from motion in a piecewise planar environment.
     // International Journal of Pattern Recognition and Artificial Intelligence, 1988
 
+    // K : Calibration Matrix from Reference
     cv::Mat invK = K.inv();
-    cv::Mat A = invK*H21*K;
+    cv::Mat A = invK*H21*K; // [4x4] Matrix.
 
     cv::Mat U,w,Vt,V;
     cv::SVD::compute(A,w,U,Vt,cv::SVD::FULL_UV);
@@ -599,7 +609,7 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     float d3 = w.at<float>(2);
 
     if(d1/d2<1.00001 || d2/d3<1.00001)
-    {
+    {   cout << "ErrBySingularValue-";
         return false;
     }
 
@@ -721,7 +731,7 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
         }
     }
 
-
+    cout << "BestGood(" << bestGood << ")-Second(" << secondBestGood << ")-";
     if(secondBestGood<0.75*bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
     {
         vR[bestSolutionIdx].copyTo(R21);
@@ -802,7 +812,7 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
 int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::KeyPoint> &vKeys1, const vector<cv::KeyPoint> &vKeys2,
                        const vector<Match> &vMatches12, vector<bool> &vbMatchesInliers,
                        const cv::Mat &K, vector<cv::Point3f> &vP3D, float th2, vector<bool> &vbGood, float &parallax)
-{
+{   // th2:4, vbGood:vbTriangulatedi
     // Calibration parameters
     const float fx = K.at<float>(0,0);
     const float fy = K.at<float>(1,1);
@@ -858,12 +868,18 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
         float cosParallax = normal1.dot(normal2)/(dist1*dist2);
 
         // Check depth in front of first camera (only if enough parallax, as "infinite" points can easily go to negative depth)
+        // In the general case, the value of the Z axis should be positive.
+        // However, when "cosParallax" is close to 1, that is, when looking from almost the same direction,
+        // the value of the Z axis may come out abnormally, so it goes over.
         if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998)
             continue;
 
         // Check depth in front of second camera (only if enough parallax, as "infinite" points can easily go to negative depth)
         cv::Mat p3dC2 = R*p3dC1+t;
-
+        
+        // In the general case, the value of the Z axis should be positive.
+        // However, when "cosParallax" is close to 1, that is, when looking from almost the same direction,
+        // the value of the Z axis may come out abnormally, so it goes over.
         if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998)
             continue;
 
@@ -898,7 +914,7 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
     }
 
     if(nGood>0)
-    {
+    {   // Returns the 50th or last element as "parallaxi".
         sort(vCosParallax.begin(),vCosParallax.end());
 
         size_t idx = min(50,int(vCosParallax.size()-1));

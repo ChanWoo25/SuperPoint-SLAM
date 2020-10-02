@@ -791,6 +791,7 @@ void Tracking::SPMonocularInitialization()
 
 void Tracking::CreateInitialMapMonocular()
 {
+    cout << "CrInit-";
     // Create KeyFrames
     KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
