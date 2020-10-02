@@ -522,10 +522,13 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers, cv::Mat &F21, cv:
         nsimilar++;
     if(nGood4>0.7*maxGood)
         nsimilar++;
+    
+    cout << "nGood(" << nGood1 << ", " << nGood2 << ", " << nGood3 << ", " << nGood4 << ")-";
+    cout << "paral(" << parallax1 << ", " << parallax2 << ", " << parallax3 << ", " << parallax4 << ")-";
 
     // If there is not a clear winner or not enough triangulated points reject initialization
     if(maxGood<nMinGood || nsimilar>1)
-    {
+    {   
         return false;
     }
 
@@ -807,7 +810,6 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
     T.at<float>(0,2) = -meanX*sX;
     T.at<float>(1,2) = -meanY*sY;
 }
-
 
 int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::KeyPoint> &vKeys1, const vector<cv::KeyPoint> &vKeys2,
                        const vector<Match> &vMatches12, vector<bool> &vbMatchesInliers,
