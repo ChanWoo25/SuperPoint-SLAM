@@ -127,7 +127,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     cout << "Map Drawer done\n";
     //Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this constructor)
-    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
+    mpTracker = new Tracking(this, mpFrameDrawer, mpMapDrawer,
                              mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
     cout << "Tracker done\n";
     //Initialize the Local Mapping thread and launch
