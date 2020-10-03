@@ -814,12 +814,10 @@ void Tracking::CreateInitialMapMonocular()
         pKFini->ComputeBoW();
         pKFcur->ComputeBoW();
     }
-    cout << "A1-" << flush;
 
     // Insert KFs in the map
     mpMap->AddKeyFrame(pKFini);
     mpMap->AddKeyFrame(pKFcur);
-    cout << "A2-" << flush;
 
     // Create MapPoints and asscoiate to keyframes
     for(size_t i=0; i<mvIniMatches.size();i++)
@@ -848,12 +846,10 @@ void Tracking::CreateInitialMapMonocular()
         //Add to Map
         mpMap->AddMapPoint(pMP);
     }
-    cout << "A3-" << flush;
 
     // Update Connections
     pKFini->UpdateConnections();
     pKFcur->UpdateConnections();
-    cout << "A4-" << flush;
 
     // Bundle Adjustment
     cout << "New Map created with " << mpMap->MapPointsInMap() << " points" << endl;
@@ -864,7 +860,8 @@ void Tracking::CreateInitialMapMonocular()
     float medianDepth = pKFini->ComputeSceneMedianDepth(2);
     float invMedianDepth = 1.0f/medianDepth;
 
-    if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<100)
+    // TrackedMapPoints : Relief of constraints (100 -> 50)
+    if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<50)
     {
         cout << "Wrong initialization, reseting..." << endl;
         Reset();

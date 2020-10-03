@@ -1141,8 +1141,6 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
   bool must = m_scoring_object->mustNormalize(norm);
   
   typename vector<TDescriptor>::const_iterator fit;
-  
-  cout << "B1-" << flush;
 
   if(m_weighting == TF || m_weighting == TF_IDF)
   {
@@ -1154,15 +1152,11 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
       NodeId nid;
       // w is the idf value if TF_IDF, 1 if TF
       transform(*fit, id, w, &nid, levelsup);
-      if(i_feature % 100 == 0)
-        cout << "B2-";
       
       if(w > 0) // not stopped
       { 
         v.addWeight(id, w);
         fv.addFeature(nid, i_feature);
-        if(i_feature % 100 == 0)
-          cout << "B3-";
       }
     }
     

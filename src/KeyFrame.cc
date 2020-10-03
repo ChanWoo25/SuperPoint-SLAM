@@ -74,11 +74,15 @@ void KeyFrame::ComputeSPBoW()
         vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
         // We assume the vocabulary tree has 6 levels, change the 4 otherwise
-        
+    
+    #ifdef DEBUG
         if(vCurrentDesc.empty()){
             cout << "DescEmpty!-" << flush;
         } else cout << "Desc-" << flush;
-
+        
+        if(mpSPVocabulary == NULL) cout << "VocaNULL-" << flush;
+    #endif
+    
         mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
     }
 }
