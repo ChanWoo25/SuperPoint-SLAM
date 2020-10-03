@@ -292,7 +292,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 
 cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestamp)
 {
-    // cout << "GrabSP-";
+    cout << "Grab-" << flush;
     mImGray = im;
 
     /* The input is unified to Grayscale. */
@@ -324,7 +324,7 @@ cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestam
 
 void Tracking::Track()
 {
-    // cout << "Track-";
+    cout << "Track-" << flush;
     if(mState==NO_IMAGES_YET)
     {   cout << "NoImgYet-";
         mState = NOT_INITIALIZED;
@@ -790,7 +790,6 @@ void Tracking::SPMonocularInitialization()
             mCurrentFrame.SetPose(Tcw);
 
             CreateInitialMapMonocular();
-            cout << "D3-" << flush;
         }
     }
 

@@ -38,7 +38,7 @@ Frame::Frame()
 //Copy Constructor
 Frame::Frame(const Frame &frame)
     :mpORBvocabulary(frame.mpORBvocabulary), mpORBextractorLeft(frame.mpORBextractorLeft), mpORBextractorRight(frame.mpORBextractorRight),
-     mpSPVocabulary(frame.mpSPVocabulary), mpSPDetector(frame.mpSPDetector), // For SuperPoint-SLAM.
+     mpSPVocabulary(frame.mpSPVocabulary), mpSPDetector(frame.mpSPDetector), mpSPmodel(frame.mpSPmodel), // For SuperPoint-SLAM.
      mTimeStamp(frame.mTimeStamp), mK(frame.mK.clone()), mDistCoef(frame.mDistCoef.clone()),
      mbf(frame.mbf), mb(frame.mb), mThDepth(frame.mThDepth), N(frame.N), mvKeys(frame.mvKeys),
      mvKeysRight(frame.mvKeysRight), mvKeysUn(frame.mvKeysUn),  mvuRight(frame.mvuRight),
@@ -246,7 +246,7 @@ Frame::Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> 
 
     // ORB extraction
     ExtractSP(imGray);
-    cout << "Detect--";
+
     N = mvKeys.size();
 
     if(mvKeys.empty())
@@ -312,6 +312,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 void Frame::ExtractSP(const cv::Mat &img)
 {
     mpSPDetector->detect(img, mpSPmodel, mvKeys, mDescriptors);
+    std::cout << "Kpts(" << mvKeys.size() << ")-" << flush;
 }
 
 void Frame::SetPose(cv::Mat Tcw)

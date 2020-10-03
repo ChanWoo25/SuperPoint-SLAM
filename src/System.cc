@@ -321,6 +321,7 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     // Check mode change
+    cout << "ChkMode-" << flush;
     {
         unique_lock<mutex> lock(mMutexMode);
         if(mbActivateLocalizationMode)
@@ -345,13 +346,14 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     // Check reset
+    cout << "ChkReset-" << flush;
     {
-    unique_lock<mutex> lock(mMutexReset);
-    if(mbReset)
-    {   cout << "Reset-";
-        mpTracker->Reset();
-        mbReset = false;
-    }
+        unique_lock<mutex> lock(mMutexReset);
+        if(mbReset)
+        {   cout << "Reset-";
+            mpTracker->Reset();
+            mbReset = false;
+        }
     }
 
     cv::Mat Tcw = mpTracker->GrabImageSPMonocular(im,timestamp);
@@ -360,6 +362,9 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     mTrackingState = mpTracker->mState;
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
+
+    if(mTrackingState == Tracking::OK)
+        cout << "[Now Tcw]\n" << Tcw << endl;
 
     return Tcw;
 }

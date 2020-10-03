@@ -180,7 +180,7 @@ void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::S
         float conf = mProb[kpts[i][0]][kpts[i][1]].item<float>();
         _keypoints.push_back(cv::KeyPoint(cv::Point((int)x, (int)y), 1.0, 0.0, conf));
     }
-    std::cout << "(Keypoints:" << _keypoints.size() << ")--";
+    
     mProb.reset();
     mDesc.reset();
 }
