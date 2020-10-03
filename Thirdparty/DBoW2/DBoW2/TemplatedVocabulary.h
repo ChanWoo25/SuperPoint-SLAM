@@ -1148,8 +1148,8 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
     for(fit = features.begin(); fit < features.end(); ++fit, ++i_feature)
     {
       WordId id;
-      NodeId nid;
       WordValue w; 
+      NodeId nid;
       // w is the idf value if TF_IDF, 1 if TF
       
       transform(*fit, id, w, &nid, levelsup);

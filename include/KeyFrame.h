@@ -31,6 +31,9 @@
 
 #include <mutex>
 
+// For SuperPoint-SLAM
+#include "SPVocabulary.h"
+#include "SPDetector.h"
 
 namespace ORB_SLAM2
 {
@@ -56,6 +59,7 @@ public:
 
     // Bag of Words Representation
     void ComputeBoW();
+    void ComputeSPBoW();
 
     // Covisibility graph functions
     void AddConnection(KeyFrame* pKF, const int &weight);
@@ -205,6 +209,8 @@ protected:
     // BoW
     KeyFrameDatabase* mpKeyFrameDB;
     ORBVocabulary* mpORBvocabulary;
+    SuperPointSLAM::SPVocabulary* mpSPVocabulary;
+
 
     // Grid over the image to speed up feature matching
     std::vector< std::vector <std::vector<size_t> > > mGrid;

@@ -798,18 +798,28 @@ void Tracking::SPMonocularInitialization()
 
 void Tracking::CreateInitialMapMonocular()
 {
-    cout << "CrInit-";
+    cout << "CreateMap-" << flush;
     // Create KeyFrames
     KeyFrame* pKFini = new KeyFrame(mInitialFrame,mpMap,mpKeyFrameDB);
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
 
-
-    pKFini->ComputeBoW();
-    pKFcur->ComputeBoW();
+    // Compute BoW vector (ADD SP.ver)
+    if(mSensor == System::SP_MONOCULAR)
+    {
+        pKFini->ComputeSPBoW();
+        pKFcur->ComputeSPBoW();
+    }
+    else
+    {
+        pKFini->ComputeBoW();
+        pKFcur->ComputeBoW();
+    }
+    cout << "A1-" << flush;
 
     // Insert KFs in the map
     mpMap->AddKeyFrame(pKFini);
     mpMap->AddKeyFrame(pKFcur);
+    cout << "A2-" << flush;
 
     // Create MapPoints and asscoiate to keyframes
     for(size_t i=0; i<mvIniMatches.size();i++)
@@ -838,10 +848,12 @@ void Tracking::CreateInitialMapMonocular()
         //Add to Map
         mpMap->AddMapPoint(pMP);
     }
+    cout << "A3-" << flush;
 
     // Update Connections
     pKFini->UpdateConnections();
     pKFcur->UpdateConnections();
+    cout << "A4-" << flush;
 
     // Bundle Adjustment
     cout << "New Map created with " << mpMap->MapPointsInMap() << " points" << endl;
