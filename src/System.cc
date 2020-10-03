@@ -363,8 +363,10 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
 
+#ifdef DEBUG
     if(mTrackingState == Tracking::OK)
-        cout << "[Now Tcw]\n" << Tcw << endl;
+        cout << "\n[Now Tcw]\n" << Tcw << endl;
+#endif
 
     return Tcw;
 }

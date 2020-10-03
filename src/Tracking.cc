@@ -123,7 +123,7 @@ Tracking::Tracking(System *pSys, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawe
         mpSPDetector = new SuperPointSLAM::SPDetector(nFeatures,fScaleFactor,nLevels,fIniThresSP,fMinThresSP);
         mpIniSPDetector = new SuperPointSLAM::SPDetector(2*nFeatures,fScaleFactor,nLevels,fIniThresSP,fMinThresSP);
 
-        cout << endl  << "SuperPoint Detector Parameters: " << endl;
+        cout << "\nSuperPoint Detector Parameters: " << endl;
         cout << "- Number of Features: " << nFeatures << endl;
         cout << "- Scale Levels: " << nLevels << endl;
         cout << "- Scale Factor: " << fScaleFactor << endl;
@@ -327,7 +327,7 @@ void Tracking::Track()
     // cout << "Track-" << flush;
 
     if(mState==NO_IMAGES_YET)
-    {   cout << "NoImgYet-";
+    {   cout << "NoImgYet-" << flush;
         mState = NOT_INITIALIZED;
     }
 
@@ -352,7 +352,7 @@ void Tracking::Track()
             If Initialization is done Successful, "mState == OK" */ 
         if(mState!=OK)
         {
-            cout << "InitFail-";
+            cout << "InitFail-" << flush;
             return;
         }
     }
@@ -532,7 +532,9 @@ void Tracking::Track()
 
             // Check if we need to insert a new keyframe
             if(NeedNewKeyFrame())
+            {   cout << "CrKF-" << flush;
                 CreateNewKeyFrame();
+            }
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
             // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -761,7 +763,7 @@ void Tracking::SPMonocularInitialization()
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,50);
 
         // Check if there are enough correspondences
-        if(nmatches<80)
+        if(nmatches<70)
         {
             cout << "NotEnough(" << nmatches << "s)-" << flush;
             delete mpInitializer;
@@ -948,7 +950,6 @@ bool Tracking::TrackReferenceKeyFrame()
         mCurrentFrame.ComputeBoW();
     }
     
-    cout << "B1-" << flush;
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
     vector<MapPoint*> vpMapPointMatches;
@@ -957,9 +958,7 @@ bool Tracking::TrackReferenceKeyFrame()
     if(mSensor == System::SP_MONOCULAR)
     {   
         SuperPointSLAM::SPMatcher matcher(0.7, false);
-        cout << "B2-" << flush;
         nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
-        cout << "B3-" << flush;
     }
     else
     {
@@ -1165,7 +1164,7 @@ bool Tracking::TrackLocalMap()
 {
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
-    cout << "TrackLocalMap-" << flush;
+    cout << "TrackLoM-" << flush;
     UpdateLocalMap();
 
     SearchLocalPoints();
@@ -1202,8 +1201,9 @@ bool Tracking::TrackLocalMap()
     int first_constraint = 50, second_constraint = 30;
 
     if(mSensor == System::SP_MONOCULAR)
-        first_constraint = 30, second_constraint = 20;
-    
+        first_constraint = 25, second_constraint = 15;
+    cout << "Inlier(" << mnMatchesInliers << ")-" << flush;
+
     if((mCurrentFrame.mnId < mnLastRelocFrameId+mMaxFrames) && 
        (mnMatchesInliers < first_constraint))
         return false;
@@ -1242,7 +1242,7 @@ bool Tracking::NeedNewKeyFrame()
     // Check how many "close" points are being tracked and how many could be potentially created.
     int nNonTrackedClose = 0;
     int nTrackedClose= 0;
-    if(mSensor!=System::MONOCULAR)
+    if(mSensor!=System::MONOCULAR && mSensor!=System::SP_MONOCULAR)
     {
         for(int i =0; i<mCurrentFrame.N; i++)
         {
@@ -1271,7 +1271,8 @@ bool Tracking::NeedNewKeyFrame()
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
     const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames && bLocalMappingIdle);
     //Condition 1c: tracking is weak
-    const bool c1c =  mSensor!=System::MONOCULAR && (mnMatchesInliers<nRefMatches*0.25 || bNeedToInsertClose) ;
+    const bool c1c =  (mSensor!=System::MONOCULAR && mSensor!=System::SP_MONOCULAR) && 
+                      (mnMatchesInliers<nRefMatches*0.25 || bNeedToInsertClose) ;
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio|| bNeedToInsertClose) && mnMatchesInliers>15);
 
@@ -1286,7 +1287,7 @@ bool Tracking::NeedNewKeyFrame()
         else
         {
             mpLocalMapper->InterruptBA();
-            if(mSensor!=System::MONOCULAR)
+            if(mSensor!=System::MONOCULAR && mSensor!=System::SP_MONOCULAR)
             {
                 if(mpLocalMapper->KeyframesInQueue()<3)
                     return true;
@@ -1311,7 +1312,7 @@ void Tracking::CreateNewKeyFrame()
     mpReferenceKF = pKF;
     mCurrentFrame.mpReferenceKF = pKF;
 
-    if(mSensor!=System::MONOCULAR)
+    if(mSensor!=System::MONOCULAR && mSensor!=System::SP_MONOCULAR)
     {
         mCurrentFrame.UpdatePoseMatrices();
 
@@ -1373,7 +1374,9 @@ void Tracking::CreateNewKeyFrame()
         }
     }
 
+    cout << "Insert-" << flush;
     mpLocalMapper->InsertKeyFrame(pKF);
+    cout << "End-" << flush;
 
     mpLocalMapper->SetNotStop(false);
 
@@ -1422,14 +1425,23 @@ void Tracking::SearchLocalPoints()
 
     if(nToMatch>0)
     {
-        ORBmatcher matcher(0.8);
         int th = 1;
         if(mSensor==System::RGBD)
             th=3;
         // If the camera has been relocalised recently, perform a coarser search
         if(mCurrentFrame.mnId<mnLastRelocFrameId+2)
             th=5;
-        matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+        
+        if(mSensor == System::SP_MONOCULAR)
+        {
+            SuperPointSLAM::SPMatcher matcher(0.8);
+            matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+        }
+        else
+        {
+            ORBmatcher matcher(0.8);
+            matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+        }
     }
 }
 

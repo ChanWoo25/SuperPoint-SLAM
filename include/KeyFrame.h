@@ -192,6 +192,10 @@ public:
     const int mnMaxY;
     const cv::Mat mK;
 
+    // BoW
+    KeyFrameDatabase* mpKeyFrameDB;
+    ORBVocabulary* mpORBvocabulary;
+    SuperPointSLAM::SPVocabulary* mpSPVocabulary;
 
     // The following variables need to be accessed trough a mutex to be thread safe.
 protected:
@@ -206,10 +210,6 @@ protected:
     // MapPoints associated to keypoints
     std::vector<MapPoint*> mvpMapPoints;
 
-    // BoW
-    KeyFrameDatabase* mpKeyFrameDB;
-    ORBVocabulary* mpORBvocabulary;
-    SuperPointSLAM::SPVocabulary* mpSPVocabulary;
 
 
     // Grid over the image to speed up feature matching

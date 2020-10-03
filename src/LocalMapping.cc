@@ -134,7 +134,12 @@ void LocalMapping::ProcessNewKeyFrame()
     }
 
     // Compute Bags of Words structures
-    mpCurrentKeyFrame->ComputeBoW();
+    if(mpCurrentKeyFrame->mpSPVocabulary != NULL){
+        mpCurrentKeyFrame->ComputeSPBoW();
+    }
+    else{
+        mpCurrentKeyFrame->ComputeBoW();
+    }
 
     // Associate MapPoints to the new keyframe and update normal and descriptor
     const vector<MapPoint*> vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();

@@ -112,15 +112,17 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     threadH.join();
     threadF.join();
 
-    // Compute ratio of scores
+    // Compute ratio of scores And Control min value.
     float RH = SH/(SH+SF);
+    float minParallex(1.0);
+    int minTriangulate(50);
 
     cout << ((RH>0.4)?"selH-":"selF-"); 
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
     if(RH>0.40)
-        return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+        return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,minParallex,minTriangulate);
     else //if(pF_HF>0.6)
-        return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+        return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,minParallex,minTriangulate);
 
     return false;
 }
