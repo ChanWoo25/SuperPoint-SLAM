@@ -1130,7 +1130,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
 {
   v.clear();
   fv.clear();
-  
+
   if(empty()) // safe for subclasses
   {
     return;
@@ -1142,6 +1142,8 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
   
   typename vector<TDescriptor>::const_iterator fit;
   
+  cout << "B1-" << flush;
+
   if(m_weighting == TF || m_weighting == TF_IDF)
   {
     unsigned int i_feature = 0;
@@ -1151,13 +1153,16 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
       WordValue w; 
       NodeId nid;
       // w is the idf value if TF_IDF, 1 if TF
-      
       transform(*fit, id, w, &nid, levelsup);
+      if(i_feature % 100 == 0)
+        cout << "B2-";
       
       if(w > 0) // not stopped
       { 
         v.addWeight(id, w);
         fv.addFeature(nid, i_feature);
+        if(i_feature % 100 == 0)
+          cout << "B3-";
       }
     }
     
