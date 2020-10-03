@@ -324,7 +324,7 @@ cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestam
 
 void Tracking::Track()
 {
-    cout << "Track-" << flush;
+    // cout << "Track-" << flush;
 
     if(mState==NO_IMAGES_YET)
     {   cout << "NoImgYet-";
@@ -467,7 +467,7 @@ void Tracking::Track()
         }
 
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
-
+        cout << "Track(" << (bOK?"OK":"LOST") << ")-" << flush;
         /*  If we have an initial estimation of the camera pose and matching. Track the local map.
             At this moment, "bOK" indicates whether the camera pose estimation was successful. */
         if(!mbOnlyTracking)
@@ -484,7 +484,7 @@ void Tracking::Track()
                 bOK = TrackLocalMap();
         }
 
-        cout << "B(" << (bOK?"OK":"LOST") << ")-" << flush;
+        cout << "Map(" << (bOK?"OK":"LOST") << ")-" << flush;
 
         if(bOK)
             mState = OK;
