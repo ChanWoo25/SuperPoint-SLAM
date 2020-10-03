@@ -464,6 +464,23 @@ void Frame::ComputeBoW()
     }
 }
 
+void Frame::ComputeSPBoW()
+{
+    if(mBowVec.empty())
+    {
+#ifdef DEBUG
+        if(vCurrentDesc.empty()){
+            cout << "DescEmpty!-" << flush;
+        } else cout << "Desc-" << flush;
+        
+        if(mpSPVocabulary == NULL) cout << "VocaNULL-" << flush;
+#endif
+
+        vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
+        mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
+    }
+}
+
 void Frame::UndistortKeyPoints()
 {
     if(mDistCoef.at<float>(0)==0.0)

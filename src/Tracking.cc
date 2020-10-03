@@ -325,6 +325,7 @@ cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestam
 void Tracking::Track()
 {
     cout << "Track-" << flush;
+
     if(mState==NO_IMAGES_YET)
     {   cout << "NoImgYet-";
         mState = NOT_INITIALIZED;
@@ -336,7 +337,7 @@ void Tracking::Track()
     unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
 
     if(mState==NOT_INITIALIZED)
-    {
+    {   cout << "Init-" << flush;
         /* Try Initialization */
         if(mSensor==System::STEREO || mSensor==System::RGBD)
             StereoInitialization();
@@ -356,7 +357,7 @@ void Tracking::Track()
         }
     }
     else
-    {
+    {   cout << "Prog(" << (mbOnlyTracking?"OnlyTr":"NormalTr") << ")-" << flush;
         // System is initialized. Track Frame.
         bool bOK;
 
@@ -374,14 +375,18 @@ void Tracking::Track()
                 if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
                 {   /*  When there is 'no Motion model' in the first place, 
                         or it is not long since the last Relocalization, */
+                    cout << "A1-" << flush;
                     bOK = TrackReferenceKeyFrame();
                 }
                 else
                 {   /* Normal behaviour -- Tracking assuming constant velocity motion */
+                    cout << "A2-" << flush; 
                     bOK = TrackWithMotionModel();
                     /* If failed, Tracking with Vocabulary. */
                     if(!bOK) 
+                    {   cout << "FailMotionModel-";
                         bOK = TrackReferenceKeyFrame();
+                    }
                 }
             }
             else
@@ -478,6 +483,8 @@ void Tracking::Track()
             if(bOK && !mbVO)
                 bOK = TrackLocalMap();
         }
+
+        cout << "B(" << (bOK?"OK":"LOST") << ")-" << flush;
 
         if(bOK)
             mState = OK;
@@ -930,9 +937,18 @@ void Tracking::CheckReplacedInLastFrame()
 
 bool Tracking::TrackReferenceKeyFrame()
 {
+    cout << "TrackRefKF-" << flush;
     // Compute Bag of Words vector
-    mCurrentFrame.ComputeBoW();
-
+    if(mSensor == System::SP_MONOCULAR)
+    {
+        mCurrentFrame.ComputeSPBoW();
+    }
+    else
+    {
+        mCurrentFrame.ComputeBoW();
+    }
+    
+    cout << "B1-" << flush;
     // We perform first an ORB matching with the reference keyframe
     // If enough matches are found we setup a PnP solver
     vector<MapPoint*> vpMapPointMatches;
@@ -941,7 +957,9 @@ bool Tracking::TrackReferenceKeyFrame()
     if(mSensor == System::SP_MONOCULAR)
     {   
         SuperPointSLAM::SPMatcher matcher(0.7, false);
+        cout << "B2-" << flush;
         nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
+        cout << "B3-" << flush;
     }
     else
     {
@@ -949,6 +967,7 @@ bool Tracking::TrackReferenceKeyFrame()
         nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
     }
 
+    cout << "RefNMatch(" << nmatches << ")-" << flush;
     if(nmatches<15)
         return false;
 
@@ -1146,7 +1165,7 @@ bool Tracking::TrackLocalMap()
 {
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
-
+    cout << "TrackLocalMap-" << flush;
     UpdateLocalMap();
 
     SearchLocalPoints();

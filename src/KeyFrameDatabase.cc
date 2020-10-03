@@ -75,7 +75,15 @@ void KeyFrameDatabase::erase(KeyFrame* pKF)
 void KeyFrameDatabase::clear()
 {
     mvInvertedFile.clear();
-    mvInvertedFile.resize(mpVoc->size());
+    size_t sz;
+
+    // For SuperPoint-SLAM!
+    if(mpSPVoc != NULL)
+        sz = mpSPVoc->size();
+    else
+        sz = mpVoc->size();
+
+    mvInvertedFile.resize(sz);
 }
 
 

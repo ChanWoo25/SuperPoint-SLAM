@@ -191,7 +191,7 @@ protected:
     SuperPointSLAM::SPVocabulary* mpSPVocabulary;
 
     KeyFrameDatabase* mpKeyFrameDB;
-
+    
     // Initalization (only for monocular)
     Initializer* mpInitializer;
 
