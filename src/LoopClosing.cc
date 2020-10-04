@@ -37,7 +37,17 @@ namespace ORB_SLAM2
 
 LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, const bool bFixScale):
     mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
-    mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
+    mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mpSPVocabulary(NULL),
+    mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
+    mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0)
+{
+    mnCovisibilityConsistencyTh = 3;
+}
+
+LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, SuperPointSLAM::SPVocabulary *pVoc, const bool bFixScale):
+    mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
+    mpKeyFrameDB(pDB), mpORBVocabulary(NULL), mpSPVocabulary(pVoc), 
+    mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
     mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0)
 {
     mnCovisibilityConsistencyTh = 3;
@@ -131,7 +141,11 @@ bool LoopClosing::DetectLoop()
             continue;
         const DBoW2::BowVector &BowVec = pKF->mBowVec;
 
-        float score = mpORBVocabulary->score(CurrentBowVec, BowVec);
+        float score;
+        if(mpORBVocabulary!=NULL)
+            score = mpORBVocabulary->score(CurrentBowVec, BowVec);
+        else
+            score = mpSPVocabulary->score(CurrentBowVec, BowVec);
 
         if(score<minScore)
             minScore = score;
@@ -236,9 +250,17 @@ bool LoopClosing::ComputeSim3()
 
     // We compute first ORB matches for each candidate
     // If enough matches are found, we setup a Sim3Solver
-    ORBmatcher matcher(0.75,true);
+    //For SuperPoint-SLAM
+    SuperPointSLAM::SPMatcher *spmatcher(NULL);
+    ORBmatcher *matcher(NULL);
 
     vector<Sim3Solver*> vpSim3Solvers;
+
+    if(mpSPVocabulary!=NULL)
+        spmatcher = new SuperPointSLAM::SPMatcher(0.75, false);
+    else
+        matcher = new ORBmatcher(0.75, true);
+
     vpSim3Solvers.resize(nInitialCandidates);
 
     vector<vector<MapPoint*> > vvpMapPointMatches;
@@ -262,7 +284,11 @@ bool LoopClosing::ComputeSim3()
             continue;
         }
 
-        int nmatches = matcher.SearchByBoW(mpCurrentKF,pKF,vvpMapPointMatches[i]);
+        int nmatches;
+        if(matcher != NULL)
+            nmatches = matcher->SearchByBoW(mpCurrentKF,pKF,vvpMapPointMatches[i]);
+        else//For SuperPoint-SLAM
+            nmatches = spmatcher->SearchByBoW(mpCurrentKF,pKF,vvpMapPointMatches[i]);
 
         if(nmatches<20)
         {
@@ -320,7 +346,10 @@ bool LoopClosing::ComputeSim3()
                 cv::Mat R = pSolver->GetEstimatedRotation();
                 cv::Mat t = pSolver->GetEstimatedTranslation();
                 const float s = pSolver->GetEstimatedScale();
-                matcher.SearchBySim3(mpCurrentKF,pKF,vpMapPointMatches,s,R,t,7.5);
+                if(matcher!=NULL)
+                    matcher->SearchBySim3(mpCurrentKF,pKF,vpMapPointMatches,s,R,t,7.5);
+                else//For SuperPoint-SLAM
+                    spmatcher->SearchBySim3(mpCurrentKF,pKF,vpMapPointMatches,s,R,t,7.5);
 
                 g2o::Sim3 gScm(Converter::toMatrix3d(R),Converter::toVector3d(t),s);
                 const int nInliers = Optimizer::OptimizeSim3(mpCurrentKF, pKF, vpMapPointMatches, gScm, 10, mbFixScale);
@@ -372,7 +401,10 @@ bool LoopClosing::ComputeSim3()
     }
 
     // Find more matches projecting with the computed Sim3
-    matcher.SearchByProjection(mpCurrentKF, mScw, mvpLoopMapPoints, mvpCurrentMatchedPoints,10);
+    if(matcher!=NULL)
+        matcher->SearchByProjection(mpCurrentKF, mScw, mvpLoopMapPoints, mvpCurrentMatchedPoints,10);
+    else//For SuperPoint-SLAM
+        spmatcher->SearchByProjection(mpCurrentKF, mScw, mvpLoopMapPoints, mvpCurrentMatchedPoints,10);
 
     // If enough matches accept Loop
     int nTotalMatches = 0;
@@ -586,7 +618,15 @@ void LoopClosing::CorrectLoop()
 
 void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
 {
-    ORBmatcher matcher(0.8);
+    //For SuperPoint-SLAM
+    SuperPointSLAM::SPMatcher *spmatcher(NULL);
+    ORBmatcher *matcher(NULL);
+    if(mpSPVocabulary!=NULL)
+        spmatcher = new SuperPointSLAM::SPMatcher(0.8, false);
+    else
+        matcher = new ORBmatcher(0.8, true);
+
+    // ORBmatcher matcher(0.8);
 
     for(KeyFrameAndPose::const_iterator mit=CorrectedPosesMap.begin(), mend=CorrectedPosesMap.end(); mit!=mend;mit++)
     {
@@ -596,7 +636,11 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
         cv::Mat cvScw = Converter::toCvMat(g2oScw);
 
         vector<MapPoint*> vpReplacePoints(mvpLoopMapPoints.size(),static_cast<MapPoint*>(NULL));
-        matcher.Fuse(pKF,cvScw,mvpLoopMapPoints,4,vpReplacePoints);
+        
+        if(matcher!=NULL)
+            matcher->Fuse(pKF,cvScw,mvpLoopMapPoints,4,vpReplacePoints);
+        else 
+            spmatcher->Fuse(pKF,cvScw,mvpLoopMapPoints,4,vpReplacePoints);
 
         // Get Map Mutex
         unique_lock<mutex> lock(mpMap->mMutexMapUpdate);

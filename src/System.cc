@@ -131,11 +131,17 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
                              mpMap, mpKeyFrameDatabase, strSettingsFile, mSensor);
     cout << "Tracker done\n";
     //Initialize the Local Mapping thread and launch
-    mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
+    if(mSensor==SP_MONOCULAR)
+        mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
+    else
+        mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
     cout << "Local Mapping done\n";
     //Initialize the Loop Closing thread and launch
-    mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
+    if(mSensor==SP_MONOCULAR)
+        mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
+    else
+        mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpSPVocabulary, mSensor!=MONOCULAR);
     mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
     cout << "Loop Closing done\n";
     //Initialize the Viewer thread and launch

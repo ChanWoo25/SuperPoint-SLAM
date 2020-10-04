@@ -25,6 +25,9 @@
 
 #include<mutex>
 
+// For SuperPoint-SLAM
+#include "SPMatcher.h"
+
 namespace ORB_SLAM2
 {
 
@@ -218,7 +221,7 @@ void LocalMapping::CreateNewMapPoints()
     const vector<KeyFrame*> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
 
     ORBmatcher matcher(0.6,false);
-
+    
     cv::Mat Rcw1 = mpCurrentKeyFrame->GetRotation();
     cv::Mat Rwc1 = Rcw1.t();
     cv::Mat tcw1 = mpCurrentKeyFrame->GetTranslation();

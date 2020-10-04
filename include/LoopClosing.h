@@ -33,6 +33,10 @@
 #include <mutex>
 #include "Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
 
+// For SuperPoint-SLAM
+#include "SPVocabulary.h"
+#include "SPMatcher.h"
+
 namespace ORB_SLAM2
 {
 
@@ -52,6 +56,7 @@ public:
 public:
 
     LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc,const bool bFixScale);
+    LoopClosing(Map *pMap, KeyFrameDatabase *pDB, SuperPointSLAM::SPVocabulary *pVoc, const bool bFixScale);
 
     void SetTracker(Tracking* pTracker);
 
@@ -109,6 +114,8 @@ protected:
 
     KeyFrameDatabase* mpKeyFrameDB;
     ORBVocabulary* mpORBVocabulary;
+
+    SuperPointSLAM::SPVocabulary* mpSPVocabulary; // SPSLAM Voca
 
     LocalMapping *mpLocalMapper;
 

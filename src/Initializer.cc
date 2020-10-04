@@ -114,7 +114,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
 
     // Compute ratio of scores And Control min value.
     float RH = SH/(SH+SF);
-    float minParallex(1.0);
+    float minParallex(0.01);
     int minTriangulate(50);
 
     cout << ((RH>0.4)?"selH-":"selF-"); 
@@ -717,7 +717,7 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     int bestGood = 0;
     int secondBestGood = 0;    
     int bestSolutionIdx = -1;
-    float bestParallax = -1;
+    float bestParallax = 180.1;
     vector<cv::Point3f> bestP3D;
     vector<bool> bestTriangulated;
 
@@ -735,7 +735,7 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
                     << "Par(" << parallaxi << ")\n";
 #endif
 
-        if(nGood>bestGood && parallaxi>minParallax)
+        if(nGood>bestGood && parallaxi<=bestParallax)
         {
             secondBestGood = bestGood;
             bestGood = nGood;
@@ -744,18 +744,18 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
             bestP3D = vP3Di;
             bestTriangulated = vbTriangulatedi;
         }
-        else if(nGood>secondBestGood && parallaxi>minParallax)
+        else if(nGood>secondBestGood && parallaxi>bestParallax)
         {
             secondBestGood = nGood;
         }
     }
 
-#ifdef DEBUG
+#ifndef DEBUG
     cout << "Good(" << bestGood << "," << secondBestGood << ")-N(" << N << ")" << endl; 
     cout << "Parallax(" << bestParallax << "," << minParallax << ")" << endl;
 #endif
 
-    if(bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N && bestSolutionIdx>=0)
+    if(bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
     {   // Condition "secondBestGood<0.75*bestGood &&" Cause No Initialization Because of Same First and Second BestGood...
         // Empirically, either BestGood's Parallax is less than minValue, so we depend on it and remove the condition.
         vR[bestSolutionIdx].copyTo(R21);

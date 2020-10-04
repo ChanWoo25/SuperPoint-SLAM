@@ -868,8 +868,8 @@ void Tracking::CreateInitialMapMonocular()
     float medianDepth = pKFini->ComputeSceneMedianDepth(2);
     float invMedianDepth = 1.0f/medianDepth;
 
-    // TrackedMapPoints : Ease constraints (100 -> 50)
-    if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<50)
+    // TrackedMapPoints : Ease constraints (100 -> 50 -> 25)
+    if(medianDepth<0 || pKFcur->TrackedMapPoints(1)<25)
     {
         cout << "Wrong initialization, reseting..." << endl;
         Reset();
@@ -1374,9 +1374,8 @@ void Tracking::CreateNewKeyFrame()
         }
     }
 
-    cout << "Insert-" << flush;
     mpLocalMapper->InsertKeyFrame(pKF);
-    cout << "End-" << flush;
+    cout << "InsertKF-" << flush;
 
     mpLocalMapper->SetNotStop(false);
 
