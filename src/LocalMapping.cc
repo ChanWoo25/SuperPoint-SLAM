@@ -220,7 +220,14 @@ void LocalMapping::CreateNewMapPoints()
         nn=20;
     const vector<KeyFrame*> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
 
-    ORBmatcher matcher(0.6,false);
+    // For SuperPoint-SLAM
+    SuperPointSLAM::SPMatcher *spmatcher(NULL);
+    ORBmatcher *matcher(NULL);    
+    if(mpCurrentKeyFrame->mpSPVocabulary!=NULL)
+        spmatcher = new SuperPointSLAM::SPMatcher(0.6, false);
+    else
+        matcher = new ORBmatcher(0.6, false);
+    //ORBmatcher matcher(0.6,false);
     
     cv::Mat Rcw1 = mpCurrentKeyFrame->GetRotation();
     cv::Mat Rwc1 = Rcw1.t();
@@ -273,7 +280,10 @@ void LocalMapping::CreateNewMapPoints()
 
         // Search matches that fullfil epipolar constraint
         vector<pair<size_t,size_t> > vMatchedIndices;
-        matcher.SearchForTriangulation(mpCurrentKeyFrame,pKF2,F12,vMatchedIndices,false);
+        if(matcher!=NULL)
+            matcher->SearchForTriangulation(mpCurrentKeyFrame,pKF2,F12,vMatchedIndices,false);
+        else
+            spmatcher->SearchForTriangulation(mpCurrentKeyFrame,pKF2,F12,vMatchedIndices,false);
 
         cv::Mat Rcw2 = pKF2->GetRotation();
         cv::Mat Rwc2 = Rcw2.t();
@@ -488,13 +498,23 @@ void LocalMapping::SearchInNeighbors()
 
 
     // Search matches by projection from current KF in target KFs
-    ORBmatcher matcher;
+    // For SuperPoint-SLAM
+    SuperPointSLAM::SPMatcher *spmatcher(NULL);
+    ORBmatcher *matcher(NULL);    
+    if(mpCurrentKeyFrame->mpSPVocabulary!=NULL)
+        spmatcher = new SuperPointSLAM::SPMatcher;
+    else
+        matcher = new ORBmatcher;
+
     vector<MapPoint*> vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();
     for(vector<KeyFrame*>::iterator vit=vpTargetKFs.begin(), vend=vpTargetKFs.end(); vit!=vend; vit++)
     {
         KeyFrame* pKFi = *vit;
-
-        matcher.Fuse(pKFi,vpMapPointMatches);
+        
+        if(matcher!=NULL)// For SuperPoint-SLAM
+            matcher->Fuse(pKFi,vpMapPointMatches);
+        else
+            spmatcher->Fuse(pKFi,vpMapPointMatches);
     }
 
     // Search matches by projection from target KFs in current KF
@@ -518,9 +538,11 @@ void LocalMapping::SearchInNeighbors()
             vpFuseCandidates.push_back(pMP);
         }
     }
-
-    matcher.Fuse(mpCurrentKeyFrame,vpFuseCandidates);
-
+    
+    if(matcher!=NULL)// For SuperPoint-SLAM
+        matcher->Fuse(mpCurrentKeyFrame,vpFuseCandidates);
+    else
+        spmatcher->Fuse(mpCurrentKeyFrame,vpFuseCandidates);
 
     // Update points
     vpMapPointMatches = mpCurrentKeyFrame->GetMapPointMatches();

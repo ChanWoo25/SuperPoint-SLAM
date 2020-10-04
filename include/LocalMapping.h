@@ -29,6 +29,9 @@
 
 #include <mutex>
 
+#include "SPMatcher.h"
+#include "SPVocabulary.h"
+
 
 namespace ORB_SLAM2
 {
