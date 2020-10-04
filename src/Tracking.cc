@@ -1592,8 +1592,12 @@ void Tracking::UpdateLocalKeyFrames()
 
 bool Tracking::Relocalization()
 {
-    // Compute Bag of Words Vector
-    mCurrentFrame.ComputeBoW();
+    // Compute Bag of Words Vector 
+    // For SuperPoint-SLAM
+    if(mSensor==System::SP_MONOCULAR)
+        mCurrentFrame.ComputeSPBoW();
+    else
+        mCurrentFrame.ComputeBoW();
 
     // Relocalization is performed when tracking is lost
     // Track Lost: Query KeyFrame Database for keyframe candidates for relocalisation
@@ -1606,7 +1610,13 @@ bool Tracking::Relocalization()
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.75,true);
+
+    SuperPointSLAM::SPMatcher *spmatcher(NULL);
+    ORBmatcher *matcher(NULL);    
+    if(mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
+        spmatcher = new SuperPointSLAM::SPMatcher(0.75,false);
+    else
+        matcher = new ORBmatcher(0.75,true);
 
     vector<PnPsolver*> vpPnPsolvers;
     vpPnPsolvers.resize(nKFs);
@@ -1626,7 +1636,12 @@ bool Tracking::Relocalization()
             vbDiscarded[i] = true;
         else
         {
-            int nmatches = matcher.SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
+            int nmatches;
+            if(mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
+                nmatches = spmatcher->SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
+            else
+                nmatches = matcher->SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
+
             if(nmatches<15)
             {
                 vbDiscarded[i] = true;
@@ -1645,7 +1660,15 @@ bool Tracking::Relocalization()
     // Alternatively perform some iterations of P4P RANSAC
     // Until we found a camera pose supported by enough inliers
     bool bMatch = false;
-    ORBmatcher matcher2(0.9,true);
+    //ORBmatcher matcher2(0.9,true);
+
+    // For SuperPoint-SLAM
+    SuperPointSLAM::SPMatcher *spmatcher2(NULL);
+    ORBmatcher *matcher2(NULL);    
+    if(mSensor==System::SP_MONOCULAR)
+        spmatcher2 = new SuperPointSLAM::SPMatcher(0.9,false);
+    else
+        matcher2 = new ORBmatcher(0.9,true);
 
     while(nCandidates>0 && !bMatch)
     {
@@ -1701,8 +1724,14 @@ bool Tracking::Relocalization()
                 // If few inliers, search by projection in a coarse window and optimize again
                 if(nGood<50)
                 {
-                    int nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
+                    // int nadditional = matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
 
+                    int nadditional;
+                    if(mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
+                        nadditional = spmatcher2->SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
+                    else
+                        nadditional = matcher2->SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
+                    
                     if(nadditional+nGood>=50)
                     {
                         nGood = Optimizer::PoseOptimization(&mCurrentFrame);
@@ -1715,7 +1744,12 @@ bool Tracking::Relocalization()
                             for(int ip =0; ip<mCurrentFrame.N; ip++)
                                 if(mCurrentFrame.mvpMapPoints[ip])
                                     sFound.insert(mCurrentFrame.mvpMapPoints[ip]);
-                            nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,3,64);
+                            // nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,3,64);
+
+                            if(mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
+                                nadditional = spmatcher2->SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,3,64);
+                            else
+                                nadditional = matcher2->SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,3,64);
 
                             // Final optimization
                             if(nGood+nadditional>=50)
