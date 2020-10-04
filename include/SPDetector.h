@@ -90,10 +90,6 @@ private:
      */
     void SemiNMS(at::Tensor& kpts);
     bool nms = true; // SemiNMS() on/off flag.
-                    
-    float conf_thres=0.0625;             /// 각 픽셀의 기댓값: 1/64 = 0.015625
-    float nn_thres;                     ///
-    bool verbose = 0;                   ///
 
     int nfeatures;
     double scaleFactor;

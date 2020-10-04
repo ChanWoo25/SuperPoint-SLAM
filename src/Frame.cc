@@ -247,7 +247,7 @@ Frame::Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> 
     mvLevelSigma2 = mpSPDetector->GetScaleSigmaSquares();
     mvInvLevelSigma2 = mpSPDetector->GetInverseScaleSigmaSquares();
 
-    // ORB extraction
+    // SuperPoint Keypoint Detection
     ExtractSP(imGray);
 
     N = mvKeys.size();
