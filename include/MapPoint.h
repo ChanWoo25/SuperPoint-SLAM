@@ -49,9 +49,16 @@ public:
     KeyFrame* GetReferenceKeyFrame();
 
     std::map<KeyFrame*,size_t> GetObservations();
+
+    // Return the number This mappoint observed by keyframes. 
     int Observations();
 
+
+    // About this MapPoint,
+    // If there are at least one observer(KeyFrame),
+    // add "idx" to MP's "mobservation" map and update "nobs"
     void AddObservation(KeyFrame* pKF,size_t idx);
+    
     void EraseObservation(KeyFrame* pKF);
 
     int GetIndexInKeyFrame(KeyFrame* pKF);

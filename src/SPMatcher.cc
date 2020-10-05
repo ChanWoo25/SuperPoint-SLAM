@@ -35,7 +35,7 @@ namespace SuperPointSLAM
 //  "TH_LOW" has a value that empirically suitable for Initialization.
 const float SPMatcher::TH_LOW = 0.01; 
 /*  TH_HIGH is a slightly relaxed threshold. */
-const float SPMatcher::TH_HIGH = 2.5;
+const float SPMatcher::TH_HIGH = 0.1;
 
 const int SPMatcher::HISTO_LENGTH = 30;
 const int SPMatcher::DESCRIPTOR_LENGTH = 256;
@@ -1433,6 +1433,7 @@ int SPMatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, c
                 {
                     const size_t i2 = *vit;
                     if(CurrentFrame.mvpMapPoints[i2])
+                        // Do not proceed with the already found map point
                         if(CurrentFrame.mvpMapPoints[i2]->Observations()>0)
                             continue;
 

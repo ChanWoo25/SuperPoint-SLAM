@@ -197,21 +197,21 @@ void SPDetector::SemiNMS(at::Tensor& kpts)
     //Booltype Accessor = kpts.accessor<bool,2>();
     bool* pT1 = kpts.data_ptr<bool>();
     bool* pT2 = pT1 + collen;
-    bool* pT3 = pT2 + collen;
+    //bool* pT3 = pT2 + collen;
 
     for(int i = 0; i < rowlen; i++)
     {
         for(int j = 0 ; j < collen; j++)
         {
-            if(*pT1 && (i < rowlen-2) && (j < collen-2))
+            if(*pT1 && (i < rowlen-1) && (j < collen-1))
             {
-                *(pT1 + 1) = 0; *(pT1 + 2) = 0;
-                *pT2 = 0; *(pT2 + 1) = 0; *(pT2 + 2) = 0; 
-                *pT3 = 0; *(pT3 + 1) = 0; *(pT3 + 2) = 0; 
+                            *(pT1 + 1) = 0;     // *(pT1 + 2) = 0;
+                *pT2 = 0;   *(pT2 + 1) = 0;     // *(pT2 + 2) = 0; 
+                //*pT3 = 0; *(pT3 + 1) = 0;        *(pT3 + 2) = 0; 
             }
             pT1++;
             pT2++;
-            pT3++;
+            //pT3++;
         }
     }
 

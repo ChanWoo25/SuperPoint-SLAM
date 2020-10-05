@@ -1167,6 +1167,7 @@ bool Tracking::TrackWithMotionModel()
         mbVO = nmatchesMap<10;
         return nmatches>20;
     }
+
     cout << "MMMap(" << nmatchesMap << ")-" << flush;
     return nmatchesMap>=10;
 }
@@ -1274,7 +1275,7 @@ bool Tracking::NeedNewKeyFrame()
     if(nKFs<2)
         thRefRatio = 0.4f;
 
-    if(mSensor==System::MONOCULAR)
+    if(mSensor==System::MONOCULAR || mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
         thRefRatio = 0.9f;
 
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
