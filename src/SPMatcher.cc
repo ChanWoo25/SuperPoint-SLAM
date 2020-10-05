@@ -52,7 +52,10 @@ int SPMatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoints
 
     for(size_t iMP=0; iMP<vpMapPoints.size(); iMP++)
     {
+        // MapPoint들의 집합, local일 수도, global일 수도.
         MapPoint* pMP = vpMapPoints[iMP];
+
+        /*  */
         if(!pMP->mbTrackInView)
             continue;
 
@@ -1358,8 +1361,9 @@ int SPMatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, c
 
     // Rotation Histogram (to check rotation consistency)
     vector<int> rotHist[HISTO_LENGTH];
-    for(int i=0;i<HISTO_LENGTH;i++)
-        rotHist[i].reserve(500);
+    if(mbCheckOrientation)
+        for(int i=0;i<HISTO_LENGTH;i++)
+            rotHist[i].reserve(500);
     const float factor = 1.0f/HISTO_LENGTH;
 
     const cv::Mat Rcw = CurrentFrame.mTcw.rowRange(0,3).colRange(0,3);
@@ -1385,6 +1389,7 @@ int SPMatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, c
             {
                 // Project
                 cv::Mat x3Dw = pMP->GetWorldPos();
+                // World coord -> LastFrame's Camera coord
                 cv::Mat x3Dc = Rcw*x3Dw+tcw;
 
                 const float xc = x3Dc.at<float>(0);
@@ -1394,18 +1399,18 @@ int SPMatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, c
                 if(invzc<0)
                     continue;
 
-                float u = CurrentFrame.fx*xc*invzc+CurrentFrame.cx;
-                float v = CurrentFrame.fy*yc*invzc+CurrentFrame.cy;
+                float u = CurrentFrame.fx*(xc*invzc)+CurrentFrame.cx;
+                float v = CurrentFrame.fy*(yc*invzc)+CurrentFrame.cy;
 
                 if(u<CurrentFrame.mnMinX || u>CurrentFrame.mnMaxX)
                     continue;
                 if(v<CurrentFrame.mnMinY || v>CurrentFrame.mnMaxY)
                     continue;
 
-                int nLastOctave = LastFrame.mvKeys[i].octave;
-
+                int nLastOctave = LastFrame.mvKeys[i].octave; // SP: 0
+                
                 // Search in a window. Size depends on scale
-                float radius = th*CurrentFrame.mvScaleFactors[nLastOctave];
+                float radius = th*CurrentFrame.mvScaleFactors[nLastOctave]; // SP: th(15)*1
 
                 vector<size_t> vIndices2;
 
@@ -1668,9 +1673,6 @@ void SPMatcher::ComputeThreeMaxima(vector<int>* histo, const int L, int &ind1, i
     }
 }
 
-
-// Bit set count operation from
-// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
 float SPMatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
     cv::Mat dist = a - b;

@@ -78,7 +78,8 @@ public:
     void ComputeBoW();
     void ComputeSPBoW();
 
-    // Set the camera pose.
+    // Set the camera pose using "Tcw"
+    // Update Current Frame's "mTcw and mRcw, mRwc, mtcw, mOw"  
     void SetPose(cv::Mat Tcw);
 
     // Computes rotation, translation and camera center matrices from the camera pose.

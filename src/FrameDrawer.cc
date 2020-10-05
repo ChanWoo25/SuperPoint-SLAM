@@ -38,11 +38,11 @@ FrameDrawer::FrameDrawer(Map* pMap):mpMap(pMap)
 cv::Mat FrameDrawer::DrawFrame()
 {
     cv::Mat im;
-    vector<cv::KeyPoint> vIniKeys; // Initialization: KeyPoints in reference frame
-    vector<int> vMatches; // Initialization: correspondeces with reference keypoints
-    vector<cv::KeyPoint> vCurrentKeys; // KeyPoints in current frame
-    vector<bool> vbVO, vbMap; // Tracked MapPoints in current frame
-    int state; // Tracking state
+    vector<cv::KeyPoint> vIniKeys;      // Initialization: KeyPoints in reference frame
+    vector<int> vMatches;               // Initialization: correspondeces with reference keypoints
+    vector<cv::KeyPoint> vCurrentKeys;  // KeyPoints in current frame
+    vector<bool> vbVO, vbMap;           // Tracked MapPoints in current frame
+    int state;                          // Tracking state
 
     //Copy variables within scoped mutex
     {

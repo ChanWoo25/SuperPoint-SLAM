@@ -532,7 +532,7 @@ void Tracking::Track()
 
             // Check if we need to insert a new keyframe
             if(NeedNewKeyFrame())
-            {   cout << "CrKF-" << flush;
+            {   cout << "NewKey-" << flush;
                 CreateNewKeyFrame();
             }
 
@@ -760,7 +760,8 @@ void Tracking::SPMonocularInitialization()
         // Find correspondences nn_ratio:0.9, Check orientation:false.
         cout << "TryMatch-";
         SuperPointSLAM::SPMatcher matcher(0.9,false);
-        int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,50);
+        int sp_window_size=100; // SPSLAM Param
+        int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,sp_window_size);
 
         // Check if there are enough correspondences
         if(nmatches<70)
@@ -1003,15 +1004,22 @@ void Tracking::UpdateLastFrame()
 {
     // Update pose according to reference keyframe
     KeyFrame* pRef = mLastFrame.mpReferenceKF;
+
+    //the relative pose obtained from the current frame
     cv::Mat Tlr = mlRelativeFramePoses.back();
 
+    // The current pose is obtained by multiplying 
+    // the pose of the previous keyframe and 
+    // the relative pose obtained from the current frame.
     mLastFrame.SetPose(Tlr*pRef->GetPose());
 
-    if(mnLastKeyFrameId==mLastFrame.mnId || mSensor==System::MONOCULAR || !mbOnlyTracking)
+    // For SuperPoint-SLAM
+    if(mnLastKeyFrameId==mLastFrame.mnId || mSensor==System::MONOCULAR || mSensor==System::SP_MONOCULAR || !mbOnlyTracking)
         return;
 
     // Create "visual odometry" MapPoints
     // We sort points according to their measured depth by the stereo/RGB-D sensor
+    cout << "UpdateLastFrame-" << flush;
     vector<pair<float,int> > vDepthIdx;
     vDepthIdx.reserve(mLastFrame.N);
     for(int i=0; i<mLastFrame.N;i++)
@@ -1067,14 +1075,15 @@ void Tracking::UpdateLastFrame()
 
 bool Tracking::TrackWithMotionModel()
 {
-    int nmatches, th;
+    int nmatches, windowSize;
      
     if(mSensor == System::SP_MONOCULAR)
     {
-        SuperPointSLAM::SPMatcher matcher(0.9,true);
+        SuperPointSLAM::SPMatcher spmatcher(0.9,false);
 
         // Update last frame pose according to its reference keyframe
         // Create "visual odometry" points if in Localization Mode
+        // Update LastFrame's "mTcw" too.
         UpdateLastFrame();
 
         mCurrentFrame.SetPose(mVelocity*mLastFrame.mTcw);
@@ -1082,15 +1091,17 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        th = 15;
-        nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, 1);
+        windowSize = 30; //SPSLAM Param 
+        nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
+        cout << "MM(" << nmatches << ")-" << flush;
 
         // If few matches, uses a wider window search
         if(nmatches<20)
         {
-            th *= 2;
+            cout << "Research(MM)-" << flush;
+            windowSize *= 2;
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-            nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, 1);
+            nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
         }
 
     }
@@ -1107,19 +1118,19 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        th;
+        windowSize;
         if(mSensor!=System::STEREO)
-            th=15;
+            windowSize=15;
         else
-            th=7;
-        nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,th,mSensor==System::MONOCULAR);
+            windowSize=7;
+        nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,windowSize,mSensor==System::MONOCULAR);
 
         // If few matches, uses a wider window search
         if(nmatches<20)
         {
-            th *= 2;
+            windowSize *= 2;
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-            nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, th, mSensor==System::MONOCULAR);
+            nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, mSensor==System::MONOCULAR);
         }
     }
     
@@ -1156,7 +1167,7 @@ bool Tracking::TrackWithMotionModel()
         mbVO = nmatchesMap<10;
         return nmatches>20;
     }
-
+    cout << "MMMap(" << nmatchesMap << ")-" << flush;
     return nmatchesMap>=10;
 }
 
@@ -1176,9 +1187,9 @@ bool Tracking::TrackLocalMap()
     // Update MapPoints Statistics
     for(int i=0; i<mCurrentFrame.N; i++)
     {
-        if(mCurrentFrame.mvpMapPoints[i])
+        if(mCurrentFrame.mvpMapPoints[i])   // 현재 프레임에서 맵에 뿌려진 키포인트 중
         {
-            if(!mCurrentFrame.mvbOutlier[i])
+            if(!mCurrentFrame.mvbOutlier[i])// 아웃라이어가 아닌 것을 찾으면 Inlier++;
             {
                 mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
                 if(!mbOnlyTracking)
@@ -1424,7 +1435,7 @@ void Tracking::SearchLocalPoints()
 
     if(nToMatch>0)
     {
-        int th = 1;
+        int th = 1; // SPSLAM Param
         if(mSensor==System::RGBD)
             th=3;
         // If the camera has been relocalised recently, perform a coarser search
@@ -1433,8 +1444,8 @@ void Tracking::SearchLocalPoints()
         
         if(mSensor == System::SP_MONOCULAR)
         {
-            SuperPointSLAM::SPMatcher matcher(0.8);
-            matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+            SuperPointSLAM::SPMatcher spmatcher(0.8, false);
+            spmatcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
         }
         else
         {

@@ -391,7 +391,7 @@ bool Frame::isInFrustum(MapPoint *pMP, float viewingCosLimit)
 }
 
 vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const float  &r, const int minLevel, const int maxLevel) const
-{
+{   // SuperPoit : u, v, 15, [-1, 1]
     vector<size_t> vIndices;
     vIndices.reserve(N);
 
