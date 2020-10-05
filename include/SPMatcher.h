@@ -57,8 +57,8 @@ public:
     int SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, const float th, const bool bMono);
 
     // Project MapPoints seen in KeyFrame into the Frame and search matches.
-    // Used in relocalisation (Tracking)
-    // SPdist 들어오는 곳
+    // Used in "Relocalisation" (Tracking)
+    // Correct "SPdist" after. 
     //  1. tracking::Relocalization()
     //  2. matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100) // 100을 바꿔야 한다.
     //  3. matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,3,64)	 // 64를 바꿔야 한다.

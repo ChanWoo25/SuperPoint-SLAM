@@ -117,11 +117,12 @@ public:
 public:
     // Vocabulary used for relocalization.
     ORBVocabulary* mpORBvocabulary;
-    SuperPointSLAM::SPVocabulary* mpSPVocabulary;
     // Feature extractor. The right is used only in the stereo case.
     ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
+    
+    /* For SuperPoint-SLAM */
+    SuperPointSLAM::SPVocabulary* mpSPVocabulary;
     SuperPointSLAM::SPDetector* mpSPDetector;
-
     std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPmodel;
 
     // Frame timestamp.

@@ -60,10 +60,10 @@ namespace g2o {
         return _error.dot(information()*_error);
       }
 
-      virtual const double* errorData() const { return _error.data();}
-      virtual double* errorData() { return _error.data();}
-      const ErrorVector& error() const { return _error;}
-      ErrorVector& error() { return _error;}
+      virtual const double* errorData() const { return _error.data(); }
+      virtual double* errorData() { return _error.data(); }
+      const ErrorVector& error() const { return _error; }
+      ErrorVector& error() { return _error; }
 
       //! information matrix of the constraint
       const InformationType& information() const { return _information;}

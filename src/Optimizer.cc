@@ -371,6 +371,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     const int its[4]={10,10,10,10};    
 
     int nBad=0;
+    float mean(0), cnt(0);
     for(size_t it=0; it<4; it++)
     {
 
@@ -391,7 +392,9 @@ int Optimizer::PoseOptimization(Frame *pFrame)
             }
 
             const float chi2 = e->chi2();
-
+            mean += chi2, cnt++;
+            // cout << "chi2(" << chi2 << ")-";
+            
             if(chi2>chi2Mono[it])
             {                
                 pFrame->mvbOutlier[idx]=true;
@@ -407,6 +410,8 @@ int Optimizer::PoseOptimization(Frame *pFrame)
             if(it==2)
                 e->setRobustKernel(0);
         }
+
+        cout << "PoseOpt(mean:"<< mean/cnt << ", nBad:" << nBad << ")-";
 
         for(size_t i=0, iend=vpEdgesStereo.size(); i<iend; i++)
         {

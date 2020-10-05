@@ -515,10 +515,10 @@ void Tracking::Track()
             {
                 MapPoint* pMP = mCurrentFrame.mvpMapPoints[i];
                 if(pMP)
-                    if(pMP->Observations()<1)
-                    {
+                    if(pMP->Observations()<1) 
+                    {   // When a MapPoint is not found,
                         mCurrentFrame.mvbOutlier[i] = false;
-                        mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
+                        mCurrentFrame.mvpMapPoints[i] = static_cast<MapPoint*>(NULL);
                     }
             }
 
@@ -549,8 +549,8 @@ void Tracking::Track()
 
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
-        {   // (SPTODO - Parameter Adjustment)
-            if(mpMap->KeyFramesInMap()<=5)
+        {   // SPSLAM Param  (5->4)
+            if(mpMap->KeyFramesInMap()<=4)
             {   
                 cout << "Track lost soon after initialisation, reseting..." << endl;
                 mpSystem->Reset();
@@ -1091,7 +1091,7 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        windowSize = 30; //SPSLAM Param 
+        windowSize = 100; //SPSLAM Param 
         nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
         cout << "MM(" << nmatches << ")-" << flush;
 
