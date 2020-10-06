@@ -478,9 +478,9 @@ void Frame::ComputeSPBoW()
         
         if(mpSPVocabulary == NULL) cout << "VocaNULL-" << flush;
 #endif
-
+        int levelup = 1; // SPSLAM Param
         vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
-        mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
+        mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,levelup);
     }
 }
 

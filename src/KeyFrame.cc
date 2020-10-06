@@ -82,8 +82,8 @@ void KeyFrame::ComputeSPBoW()
         
         if(mpSPVocabulary == NULL) cout << "VocaNULL-" << flush;
     #endif
-    
-        mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
+        int levelup = 1; // SPSLAM Param
+        mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,levelup);
     }
 }
 

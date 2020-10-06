@@ -718,6 +718,7 @@ int SPMatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2, cv::Mat F1
     DBoW2::FeatureVector::const_iterator f1end = vFeatVec1.end();
     DBoW2::FeatureVector::const_iterator f2end = vFeatVec2.end();
 
+    int cnt=0;
     while(f1it!=f1end && f2it!=f2end)
     {
         if(f1it->first == f2it->first)
@@ -742,6 +743,7 @@ int SPMatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2, cv::Mat F1
                 
                 const cv::Mat &d1 = pKF1->mDescriptors.row(idx1);
                 
+                // SPSLAM Param
                 float bestDist = TH_LOW;
                 int bestIdx2 = -1;
                 
@@ -763,7 +765,7 @@ int SPMatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2, cv::Mat F1
                     
                     const cv::Mat &d2 = pKF2->mDescriptors.row(idx2);
                     
-                    const float dist = DescriptorDistance(d1,d2);
+                    const float dist = DescriptorDistance(d1,d2); cnt++;
                     
                     if(dist>TH_LOW || dist>bestDist)
                         continue;
@@ -817,6 +819,9 @@ int SPMatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2, cv::Mat F1
             f2it = vFeatVec2.lower_bound(f1it->first);
         }
     }
+    cout << "Dcnt(" << cnt << ")-" <<flush;
+
+
 
     if(mbCheckOrientation)
     {

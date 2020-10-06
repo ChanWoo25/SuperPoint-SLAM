@@ -1294,9 +1294,9 @@ bool Tracking::NeedNewKeyFrame()
     
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio || bNeedToInsertClose) && mnMatchesInliers>15);
-    cout << "MatchCmp(" << mnMatchesInliers<< "," << (nRefMatches*thRefRatio) << ")-" << flush;
+    cout << "MatchCompare(" << mnMatchesInliers<< "," << (nRefMatches*thRefRatio) << ")-" << flush;
 
-    cout << "c123(" << c1a << "," << c1b << "," << c1c << ")-" << flush;
+    // cout << "c123(" << c1a << "," << c1b << "," << c1c << ")-" << flush;
     cout << "bIdle(" << bLocalMappingIdle << ")-" << flush;
     if((c1a||c1b||c1c)&&c2)
     {
