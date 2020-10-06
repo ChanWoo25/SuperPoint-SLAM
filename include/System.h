@@ -64,7 +64,7 @@ public:
         RGBD=2,
         SP_MONOCULAR=3
     };
-    string mSPWeightPath = "/home/leecw/Reps/ORB_SLAM2/SPWeight/superpoint.pt";
+    string mSPWeightPath = "SPWeight/superpoint.pt";
     std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel; 
 
 public:
