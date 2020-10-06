@@ -267,6 +267,7 @@ set<MapPoint*> KeyFrame::GetMapPoints()
     return s;
 }
 
+
 int KeyFrame::TrackedMapPoints(const int &minObs)
 {
     unique_lock<mutex> lock(mMutexFeatures);

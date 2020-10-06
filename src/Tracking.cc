@@ -1229,13 +1229,16 @@ bool Tracking::TrackLocalMap()
 
 bool Tracking::NeedNewKeyFrame()
 {
+    // NoUse
     if(mbOnlyTracking)
         return false;
 
     // If Local Mapping is freezed by a Loop Closure do not insert keyframes
+    // 로컬 맵 동작 안할 때
     if(mpLocalMapper->isStopped() || mpLocalMapper->stopRequested())
         return false;
 
+    // Current the total number of Keyframes.
     const int nKFs = mpMap->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
@@ -1248,7 +1251,7 @@ bool Tracking::NeedNewKeyFrame()
         nMinObs=2;
     int nRefMatches = mpReferenceKF->TrackedMapPoints(nMinObs);
 
-    // Local Mapping accept keyframes?
+    // True if Local Mapper is idle.
     bool bLocalMappingIdle = mpLocalMapper->AcceptKeyFrames();
 
     // Check how many "close" points are being tracked and how many could be potentially created.
@@ -1268,6 +1271,7 @@ bool Tracking::NeedNewKeyFrame()
         }
     }
 
+    // When (SP)Mono, always false.
     bool bNeedToInsertClose = (nTrackedClose<100) && (nNonTrackedClose>70);
 
     // Thresholds
@@ -1280,18 +1284,25 @@ bool Tracking::NeedNewKeyFrame()
 
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
     const bool c1a = mCurrentFrame.mnId>=mnLastKeyFrameId+mMaxFrames;
+
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
     const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames && bLocalMappingIdle);
-    //Condition 1c: tracking is weak
+    cout << "CurID(" << (mCurrentFrame.mnId) << ")-LastId(" << (mnLastKeyFrameId) << ")-" << flush;
+    //Condition 1c: tracking is weak & "SPmono==false".
     const bool c1c =  (mSensor!=System::MONOCULAR && mSensor!=System::SP_MONOCULAR) && 
                       (mnMatchesInliers<nRefMatches*0.25 || bNeedToInsertClose) ;
+    
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
-    const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio|| bNeedToInsertClose) && mnMatchesInliers>15);
+    const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio || bNeedToInsertClose) && mnMatchesInliers>15);
+    cout << "MatchCmp(" << mnMatchesInliers<< "," << (nRefMatches*thRefRatio) << ")-" << flush;
 
+    cout << "c123(" << c1a << "," << c1b << "," << c1c << ")-" << flush;
+    cout << "bIdle(" << bLocalMappingIdle << ")-" << flush;
     if((c1a||c1b||c1c)&&c2)
     {
         // If the mapping accepts keyframes, insert keyframe.
         // Otherwise send a signal to interrupt BA
+        cout << "cPass-" << flush;
         if(bLocalMappingIdle)
         {
             return true;
@@ -1321,6 +1332,7 @@ void Tracking::CreateNewKeyFrame()
 
     KeyFrame* pKF = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
 
+    // Keyframe the current frame and make it RefernceFrame.
     mpReferenceKF = pKF;
     mCurrentFrame.mpReferenceKF = pKF;
 
@@ -1492,6 +1504,7 @@ void Tracking::UpdateLocalPoints()
 }
 
 
+// Find the keyframe that shares the most map points connected to the current frame and update it to Reference KeyFrame.
 void Tracking::UpdateLocalKeyFrames()
 {
     // Each map point vote for the keyframes in which it has been observed

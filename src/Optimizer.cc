@@ -411,7 +411,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->setRobustKernel(0);
         }
 
-        cout << "PoseOpt(mean:"<< mean/cnt << ", nBad:" << nBad << ")-";
+        // cout << "PoseOpt(mean:"<< mean/cnt << ", nBad:" << nBad << ")-";
 
         for(size_t i=0, iend=vpEdgesStereo.size(); i<iend; i++)
         {

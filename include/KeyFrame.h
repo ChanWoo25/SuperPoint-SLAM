@@ -91,7 +91,11 @@ public:
     void ReplaceMapPointMatch(const size_t &idx, MapPoint* pMP);
     std::set<MapPoint*> GetMapPoints();
     std::vector<MapPoint*> GetMapPointMatches();
+
+    // Returns the number of map points observed over "minObs" 
+    // in all keyframes among the map points of the keyframe that called this function.
     int TrackedMapPoints(const int &minObs);
+    
     MapPoint* GetMapPoint(const size_t &idx);
 
     // KeyPoint functions
