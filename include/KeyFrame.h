@@ -59,7 +59,7 @@ public:
 
     // Bag of Words Representation
     void ComputeBoW();
-    void ComputeSPBoW();
+    void ComputeSPBoW(int levelup);
 
     // Covisibility graph functions
     void AddConnection(KeyFrame* pKF, const int &weight);

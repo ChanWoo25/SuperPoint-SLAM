@@ -76,7 +76,7 @@ public:
 
     // Compute Bag of Words representation.
     void ComputeBoW();
-    void ComputeSPBoW();
+    void ComputeSPBoW(int levelup);
 
     // Set the camera pose using "Tcw"
     // Update Current Frame's "mTcw and mRcw, mRwc, mtcw, mOw"  

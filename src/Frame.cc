@@ -315,7 +315,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 void Frame::ExtractSP(const cv::Mat &img)
 {
     mpSPDetector->detect(img, mpSPmodel, mvKeys, mDescriptors);
-    std::cout << "Kpts(" << mvKeys.size() << ")-" << flush;
+    std::cout << "[Fr]Kpts(" << mvKeys.size() << ")-" << flush;
 }
 
 void Frame::SetPose(cv::Mat Tcw)
@@ -467,7 +467,7 @@ void Frame::ComputeBoW()
     }
 }
 
-void Frame::ComputeSPBoW()
+void Frame::ComputeSPBoW(int levelup)
 {
     if(mBowVec.empty())
     {
@@ -478,7 +478,6 @@ void Frame::ComputeSPBoW()
         
         if(mpSPVocabulary == NULL) cout << "VocaNULL-" << flush;
 #endif
-        int levelup = 1; // SPSLAM Param
         vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
         mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,levelup);
     }

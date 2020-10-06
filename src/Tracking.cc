@@ -172,6 +172,11 @@ Tracking::Tracking(System *pSys, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawe
             mDepthMapFactor = 1.0f/mDepthMapFactor;
     }
 
+    if(sensor==System::SP_MONOCULAR)
+    {
+        mLevelup = fSettings["SPMatcher.levelup"];
+        cout << "mLevelup(" << mLevelup << ")-" << flush;
+    }
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -291,8 +296,7 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp)
 }
 
 cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestamp)
-{
-    cout << "Grab-" << flush;
+{   
     mImGray = im;
 
     /* The input is unified to Grayscale. */
@@ -327,7 +331,7 @@ void Tracking::Track()
     // cout << "Track-" << flush;
 
     if(mState==NO_IMAGES_YET)
-    {   cout << "NoImgYet-" << flush;
+    {   cout << "[T]NoImgYet-" << flush;
         mState = NOT_INITIALIZED;
     }
 
@@ -337,7 +341,7 @@ void Tracking::Track()
     unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
 
     if(mState==NOT_INITIALIZED)
-    {   cout << "Init-" << flush;
+    {   cout << "[T]Init-" << flush;
         /* Try Initialization */
         if(mSensor==System::STEREO || mSensor==System::RGBD)
             StereoInitialization();
@@ -352,12 +356,12 @@ void Tracking::Track()
             If Initialization is done Successful, "mState == OK" */ 
         if(mState!=OK)
         {
-            cout << "InitFail-" << flush;
+            cout << "[T]InitFail-" << flush;
             return;
         }
     }
     else
-    {   cout << "Prog(" << (mbOnlyTracking?"OnlyTr":"NormalTr") << ")-" << flush;
+    {   
         // System is initialized. Track Frame.
         bool bOK;
 
@@ -375,16 +379,16 @@ void Tracking::Track()
                 if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
                 {   /*  When there is 'no Motion model' in the first place, 
                         or it is not long since the last Relocalization, */
-                    cout << "A1-" << flush;
+                    cout << "[T]Ref-" << flush;
                     bOK = TrackReferenceKeyFrame();
                 }
                 else
                 {   /* Normal behaviour -- Tracking assuming constant velocity motion */
-                    cout << "A2-" << flush; 
+                    cout << "[T]Mot-" << flush; 
                     bOK = TrackWithMotionModel();
                     /* If failed, Tracking with Vocabulary. */
                     if(!bOK) 
-                    {   cout << "FailMotionModel-";
+                    {   cout << "[T]MotFail-";
                         bOK = TrackReferenceKeyFrame();
                     }
                 }
@@ -815,8 +819,8 @@ void Tracking::CreateInitialMapMonocular()
     // Compute BoW vector (ADD SP.ver)
     if(mSensor == System::SP_MONOCULAR)
     {
-        pKFini->ComputeSPBoW();
-        pKFcur->ComputeSPBoW();
+        pKFini->ComputeSPBoW(mLevelup);
+        pKFcur->ComputeSPBoW(mLevelup);
     }
     else
     {
@@ -940,11 +944,10 @@ void Tracking::CheckReplacedInLastFrame()
 
 bool Tracking::TrackReferenceKeyFrame()
 {
-    cout << "TrackRefKF-" << flush;
     // Compute Bag of Words vector
     if(mSensor == System::SP_MONOCULAR)
     {
-        mCurrentFrame.ComputeSPBoW();
+        mCurrentFrame.ComputeSPBoW(mLevelup);
     }
     else
     {
@@ -967,7 +970,7 @@ bool Tracking::TrackReferenceKeyFrame()
         nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
     }
 
-    cout << "RefNMatch(" << nmatches << ")-" << flush;
+    cout << "SearchByBoW(" << nmatches << ")-" << flush;
     if(nmatches<15)
         return false;
 
@@ -996,7 +999,7 @@ bool Tracking::TrackReferenceKeyFrame()
                 nmatchesMap++;
         }
     }
-
+    cout << "nmatchesMap(" << nmatchesMap << ")-" << flush;
     return nmatchesMap>=10;
 }
 
@@ -1093,15 +1096,15 @@ bool Tracking::TrackWithMotionModel()
         // Project points seen in previous frame
         windowSize = 100; //SPSLAM Param 
         nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
-        cout << "MM(" << nmatches << ")-" << flush;
+        cout << "SearchByProjection(" << nmatches << ")-" << flush;
 
         // If few matches, uses a wider window search
         if(nmatches<20)
         {
-            cout << "Research(MM)-" << flush;
             windowSize *= 2;
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
             nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
+            cout << "SearchByProjection2(" << nmatches << ")-" << flush;
         }
 
     }
@@ -1168,7 +1171,7 @@ bool Tracking::TrackWithMotionModel()
         return nmatches>20;
     }
 
-    cout << "MMMap(" << nmatchesMap << ")-" << flush;
+    cout << "nmatchesMap(" << nmatchesMap << ")-" << flush;
     return nmatchesMap>=10;
 }
 
@@ -1176,7 +1179,7 @@ bool Tracking::TrackLocalMap()
 {
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
-    cout << "TrackLoM-" << flush;
+    cout << "[T]LocalMap-" << flush;
     UpdateLocalMap();
 
     SearchLocalPoints();
@@ -1214,7 +1217,7 @@ bool Tracking::TrackLocalMap()
 
     if(mSensor == System::SP_MONOCULAR)
         first_constraint = 25, second_constraint = 15;
-    cout << "Inlier(" << mnMatchesInliers << ")-" << flush;
+    cout << "[T]Inlier(" << mnMatchesInliers << ")-" << flush;
 
     if((mCurrentFrame.mnId < mnLastRelocFrameId+mMaxFrames) && 
        (mnMatchesInliers < first_constraint))
@@ -1295,14 +1298,13 @@ bool Tracking::NeedNewKeyFrame()
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio || bNeedToInsertClose) && mnMatchesInliers>15);
     cout << "MatchCompare(" << mnMatchesInliers<< "," << (nRefMatches*thRefRatio) << ")-" << flush;
-
-    // cout << "c123(" << c1a << "," << c1b << "," << c1c << ")-" << flush;
+    cout << "cond(" << c1a << "," << c1b << "," << c1c << "," << c2 << ")-";
     cout << "bIdle(" << bLocalMappingIdle << ")-" << flush;
+    
     if((c1a||c1b||c1c)&&c2)
     {
         // If the mapping accepts keyframes, insert keyframe.
         // Otherwise send a signal to interrupt BA
-        cout << "cPass-" << flush;
         if(bLocalMappingIdle)
         {
             return true;
@@ -1399,7 +1401,6 @@ void Tracking::CreateNewKeyFrame()
     }
 
     mpLocalMapper->InsertKeyFrame(pKF);
-    cout << "InsertKF-" << flush;
 
     mpLocalMapper->SetNotStop(false);
 
@@ -1448,7 +1449,7 @@ void Tracking::SearchLocalPoints()
 
     if(nToMatch>0)
     {
-        int th = 1; // SPSLAM Param
+        int th = 1, nmatches; // SPSLAM Param
         if(mSensor==System::RGBD)
             th=3;
         // If the camera has been relocalised recently, perform a coarser search
@@ -1458,13 +1459,15 @@ void Tracking::SearchLocalPoints()
         if(mSensor == System::SP_MONOCULAR)
         {
             SuperPointSLAM::SPMatcher spmatcher(0.8, false);
-            spmatcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+            nmatches = spmatcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
         }
         else
         {
             ORBmatcher matcher(0.8);
-            matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
+            nmatches = matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
         }
+
+        cout << "SearchLocalPoints(" << nmatches << ")-" << flush;
     }
 }
 
@@ -1620,7 +1623,7 @@ bool Tracking::Relocalization()
     // Compute Bag of Words Vector 
     // For SuperPoint-SLAM
     if(mSensor==System::SP_MONOCULAR)
-        mCurrentFrame.ComputeSPBoW();
+        mCurrentFrame.ComputeSPBoW(mLevelup);
     else
         mCurrentFrame.ComputeBoW();
 

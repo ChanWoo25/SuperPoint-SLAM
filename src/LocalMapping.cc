@@ -30,11 +30,19 @@
 
 namespace ORB_SLAM2
 {
-
 LocalMapping::LocalMapping(Map *pMap, const float bMonocular):
     mbMonocular(bMonocular), mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
     mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true)
 {
+}
+
+LocalMapping::LocalMapping(Map *pMap, const float bMonocular, const string &strSettingPath):
+    mbMonocular(bMonocular), mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
+    mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true)
+{
+    cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+    mLevelup = fSettings["SPMatcher.levelup"];
+    cout << "mLevelup(" << mLevelup << ")-" << flush;
 }
 
 void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
@@ -140,7 +148,7 @@ void LocalMapping::ProcessNewKeyFrame()
 
     // Compute Bags of Words structures
     if(mpCurrentKeyFrame->mpSPVocabulary != NULL){
-        mpCurrentKeyFrame->ComputeSPBoW();
+        mpCurrentKeyFrame->ComputeSPBoW(mLevelup);
     }
     else{
         mpCurrentKeyFrame->ComputeBoW();

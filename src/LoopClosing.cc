@@ -44,13 +44,16 @@ LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, 
     mnCovisibilityConsistencyTh = 3;
 }
 
-LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, SuperPointSLAM::SPVocabulary *pVoc, const bool bFixScale):
+LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, SuperPointSLAM::SPVocabulary *pVoc, const bool bFixScale, const string &strSettingPath):
     mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
     mpKeyFrameDB(pDB), mpORBVocabulary(NULL), mpSPVocabulary(pVoc), 
     mpMatchedKF(NULL), mLastLoopKFid(0), mbRunningGBA(false), mbFinishedGBA(true),
     mbStopGBA(false), mpThreadGBA(NULL), mbFixScale(bFixScale), mnFullBAIdx(0)
 {
     mnCovisibilityConsistencyTh = 3;
+    cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+    mLevelup = fSettings["SPMatcher.levelup"];
+    cout << "mLevelup(" << mLevelup << ")-" << flush;
 }
 
 void LoopClosing::SetTracker(Tracking *pTracker)

@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 #endif
 
         // Pass the image to the SLAM system
-        cout << "TrSP-";
+        cout << "SP:";
         SLAM.TrackSPMonocular(img, tframe);
         cout << endl;
 

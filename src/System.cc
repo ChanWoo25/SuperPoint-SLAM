@@ -132,7 +132,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     cout << "Tracker done\n";
     //Initialize the Local Mapping thread and launch
     if(mSensor==SP_MONOCULAR)
-        mpLocalMapper = new LocalMapping(mpMap, mSensor==SP_MONOCULAR);
+        mpLocalMapper = new LocalMapping(mpMap, mSensor==SP_MONOCULAR, strSettingsFile);
     else
         mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
@@ -140,9 +140,9 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     
     //Initialize the Loop Closing thread and launch
     if(mSensor==SP_MONOCULAR)
-        mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=SP_MONOCULAR);
+        mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpSPVocabulary, mSensor!=SP_MONOCULAR, strSettingsFile);
     else
-        mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpSPVocabulary, mSensor!=MONOCULAR);
+        mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR);
     mptLoopClosing = new thread(&ORB_SLAM2::LoopClosing::Run, mpLoopCloser);
     cout << "Loop Closing done\n";
 
@@ -329,11 +329,10 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     // Check mode change
-    cout << "ChkMode-" << flush;
     {
         unique_lock<mutex> lock(mMutexMode);
         if(mbActivateLocalizationMode)
-        {
+        {   cout << "[S]Localization-" << flush;
             mpLocalMapper->RequestStop();
 
             // Wait until Local Mapping has effectively stopped
@@ -354,11 +353,10 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     }
 
     // Check reset
-    cout << "ChkReset-" << flush;
     {
         unique_lock<mutex> lock(mMutexReset);
         if(mbReset)
-        {   cout << "Reset-";
+        {   cout << "[S]Reset-" << flush;
             mpTracker->Reset();
             mbReset = false;
         }

@@ -107,6 +107,8 @@ public:
     std::vector<cv::Point3f> mvIniP3D;
     Frame mInitialFrame;
 
+    int mLevelup;
+
     // Lists used to recover the full camera trajectory at the end of the execution.
     // Basically we store the reference keyframe for each frame and its relative transformation
     list<cv::Mat> mlRelativeFramePoses;

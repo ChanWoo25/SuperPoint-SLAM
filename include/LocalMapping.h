@@ -44,6 +44,7 @@ class LocalMapping
 {
 public:
     LocalMapping(Map* pMap, const float bMonocular);
+    LocalMapping(Map* pMap, const float bMonocular, const string &strSettingPath);
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
@@ -74,6 +75,8 @@ public:
         unique_lock<std::mutex> lock(mMutexNewKFs);
         return mlNewKeyFrames.size();
     }
+
+    int mLevelup;
 
 protected:
 

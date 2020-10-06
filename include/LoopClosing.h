@@ -56,7 +56,7 @@ public:
 public:
 
     LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc,const bool bFixScale);
-    LoopClosing(Map *pMap, KeyFrameDatabase *pDB, SuperPointSLAM::SPVocabulary *pVoc, const bool bFixScale);
+    LoopClosing(Map *pMap, KeyFrameDatabase *pDB, SuperPointSLAM::SPVocabulary *pVoc, const bool bFixScale, const string &strSettingPath);
 
     void SetTracker(Tracking* pTracker);
 
@@ -86,6 +86,8 @@ public:
     bool isFinished();
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    int mLevelup;
 
 protected:
 
