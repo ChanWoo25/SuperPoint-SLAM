@@ -16,8 +16,15 @@
 #include <iostream>
 
 namespace DBoW2 {
-
-/// Vector of nodes with indexes of local features
+ 
+/**FeatureVector is a map where 
+ * "NodeId" is the Key and 
+ * "A vector of indexes of local features" is the Value.
+ * 
+ * One Frame(=image) will have one Feature Vector.
+ * That means, the Frame's all Features are assigned to a specific Node,
+ * and information of Features assigned to each Node can be confirmed by map's vector value.
+ */
 class FeatureVector: 
   public std::map<NodeId, std::vector<unsigned int> >
 {

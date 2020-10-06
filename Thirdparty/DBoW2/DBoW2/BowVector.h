@@ -52,7 +52,13 @@ enum ScoringType
   DOT_PRODUCT,
 };
 
-/// Vector of words to represent images
+/**BowVector is a map where 
+ * "WordId" is the Key and 
+ * "WordValue" is the Value.
+ * 
+ * Each word is "one of the distinct elements" that make up an image
+ * And "a word is always a leaf node" of the nodes that make up SPVocabulary
+ */
 class BowVector: 
 	public std::map<WordId, WordValue>
 {

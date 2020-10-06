@@ -1122,7 +1122,17 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
 }
 
 // --------------------------------------------------------------------------
-
+/**Fill the BowVector and FeatureVector with given Descriptors.
+ * You can choose "Which level of nodes to choose" to configure FeatureVector.
+ * 
+ * BowVector tells which Words make up an image and 
+ * how much distinction each has. (== how much it contributes to Image Retrieval.)
+ * 
+ * FeatureVector tells which Nodes each Descriptors is assigned to.
+ * It may seem useless, because it has no weights if a node is not a leaf node.
+ * However, when you want to easily access similar Descriptors, 
+ * The management method like this is very useful.
+ */ 
 template<class TDescriptor, class F> 
 void TemplatedVocabulary<TDescriptor,F>::transform(
   const std::vector<TDescriptor>& features,
@@ -1213,6 +1223,15 @@ void TemplatedVocabulary<TDescriptor,F>::transform
 
 // --------------------------------------------------------------------------
 
+/**Find out which word a given feature belongs to.
+ * And it also finds which node belongs to within a certain level.
+ * 
+ * Node's level is decided by "L - levelsup".
+ * The root node's level is 0, and it increases by 1.
+ * 
+ * Again, a word is the a node that best represent a given feature, 
+ * and the "nid==NodeId" is determined at the node at a specific level for the FeatureVector.
+ */
 template<class TDescriptor, class F>
 void TemplatedVocabulary<TDescriptor,F>::transform(const TDescriptor &feature, 
   WordId &word_id, WordValue &weight, NodeId *nid, int levelsup) const
