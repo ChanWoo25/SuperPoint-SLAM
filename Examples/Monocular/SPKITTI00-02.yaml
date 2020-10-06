@@ -39,7 +39,7 @@ SPDetector.IniThresSP: 0.045
 SPDetector.MinThresSP: 0.03
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
-SPMatcher.levelup: 3
+SPMatcher.levelup: 4
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
