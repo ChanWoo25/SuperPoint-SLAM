@@ -1,9 +1,9 @@
-# ORB-SLAM2
-**Authors:** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/), [J. M. M. Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/) ([DBoW2](https://github.com/dorian3d/DBoW2))
+# SuperPoint-SLAM
+---
 
-**13 Jan 2017**: OpenCV 3 and Eigen 3.3 are now supported.
+**Authors:** [Chanwoo Lee](https://github.com/ChanWoo25)
 
-**22 Dec 2016**: Added AR demo (see section 7).
+**ORB-SLAM2 Authors** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/), [J. M. M. Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/) ([DBoW2](https://github.com/dorian3d/DBoW2))
 
 ORB-SLAM2 is a real-time SLAM library for **Monocular**, **Stereo** and **RGB-D** cameras that computes the camera trajectory and a sparse 3D reconstruction (in the stereo and RGB-D case with true scale). It is able to detect loops and relocalize the camera in real time. We provide examples to run the SLAM system in the [KITTI dataset](http://www.cvlibs.net/datasets/kitti/eval_odometry.php) as stereo or monocular, in the [TUM dataset](http://vision.in.tum.de/data/datasets/rgbd-dataset) as RGB-D or monocular, and in the [EuRoC dataset](http://projects.asl.ethz.ch/datasets/doku.php?id=kmavvisualinertialdatasets) as stereo or monocular. We also provide a ROS node to process live monocular, stereo or RGB-D streams. **The library can be compiled without ROS**. ORB-SLAM2 provides a GUI to change between a *SLAM Mode* and *Localization Mode*, see section 9 of this document.
 
@@ -56,27 +56,47 @@ if you use ORB-SLAM2 (Stereo or RGB-D) in an academic work, please cite:
      }
 
 # 2. Prerequisites
-We have tested the library in **Ubuntu 12.04**, **14.04** and **16.04**, but it should be easy to compile in other platforms. A powerful computer (e.g. i7) will ensure real-time performance and provide more stable and accurate results.
+We have tested the library in **16.04**, but it should be easy to compile in other platforms. To build **SuperPoint-SLAM**, you need a GPU that supports CUDA 10.2 or higher. Of course, you can use a lower CUDA version by modifying the LibTorch code accordingly. However, I cannot guarantee normal operation. Also, To some extent, powerful cpu is required for real-time performance and more stable and accurate results of SuperPointSLAM.
 
-## C++11 or C++0x Compiler
+Ok, so let's first look at *the build requirements*. You can conveniently install the necessary libraries using the Basg Scripts we wrote.
+However, you can also install it yourself after looking at the official website by looking at the library list described below. If you install it yourself, **keep in mind that** we put all the important libraries in "/usr/local".
+
+To use our scripts. Note that the order of execution matters because Eigen3 can be used other libraries' build.
+```
+git clone https://github.com/ChanWoo25/SuperPoint-SLAM.git
+cd SuperPoint-SLAM
+chmod +x INSTALL_*
+bash INSTALL_Eigen3.sh
+bash INSTALL_OpenCV.sh
+bash INSTALL_LibTorch.sh
+bash INSTALL_Pangolin.sh
+```
+
+## 1. C++11 or C++0x Compiler
 We use the new thread and chrono functionalities of C++11.
 
-## Pangolin
+## 2. Eigen3
+Required by g2o (see below). Download and install instructions can be found at: http://eigen.tuxfamily.org. **(Tested with Eigen 3.3.8 (At least 3.1.0 required))**.
+
+## 3. OpenCV
+We used the latest version of [OpenCV](http://opencv.org) for stable operation. **(Tested with OpenCV 3.2.0 and 3.4.11)**
+
+## 4. LibTorch 
+We used the 1.6.0 version of [LibTorch](https://pytorch.org/) for SuperPoint Implementation.
+
+## 5. Pangolin
 We use [Pangolin](https://github.com/stevenlovegrove/Pangolin) for visualization and user interface. Dowload and install instructions can be found at: https://github.com/stevenlovegrove/Pangolin.
 
-## OpenCV
-We use [OpenCV](http://opencv.org) to manipulate images and features. Dowload and install instructions can be found at: http://opencv.org. **Required at leat 2.4.3. Tested with OpenCV 2.4.11 and OpenCV 3.2**.
-
-## Eigen3
-Required by g2o (see below). Download and install instructions can be found at: http://eigen.tuxfamily.org. **Required at least 3.1.0**.
-
-## DBoW2 and g2o (Included in Thirdparty folder)
+## 6. DBoW2 and g2o (Included in Thirdparty folder)
 We use modified versions of the [DBoW2](https://github.com/dorian3d/DBoW2) library to perform place recognition and [g2o](https://github.com/RainerKuemmerle/g2o) library to perform non-linear optimizations. Both modified libraries (which are BSD) are included in the *Thirdparty* folder.
 
-## ROS (optional)
-We provide some examples to process the live input of a monocular, stereo or RGB-D camera using [ROS](ros.org). Building these examples is optional. In case you want to use ROS, a version Hydro or newer is needed.
 
-# 3. Building ORB-SLAM2 library and examples
+## ROS (optional)
+
+TODO...
+
+
+# 3. Building SuperPoint-SLAM library and examples
 
 Clone the repository:
 ```
