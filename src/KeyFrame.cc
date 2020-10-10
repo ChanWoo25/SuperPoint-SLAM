@@ -86,11 +86,11 @@ void KeyFrame::ComputeSPBoW(int levelup)
         mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,levelup);
     }
 
-    map<unsigned int, vector<unsigned int>>::iterator it;
-    for(it=mFeatVec.begin(); it!=mFeatVec.end(); it++)
-    {
-        cout << "\n\nNID:" << it->first << "(" << it->second.size() << ")" << flush;
-    }
+    // map<unsigned int, vector<unsigned int>>::iterator it;
+    // for(it=mFeatVec.begin(); it!=mFeatVec.end(); it++)
+    // {
+    //     cout << "\n\nNID:" << it->first << "(" << it->second.size() << ")" << flush;
+    // }
 
 }
 

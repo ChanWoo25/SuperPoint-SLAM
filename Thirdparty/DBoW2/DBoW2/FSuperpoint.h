@@ -46,10 +46,7 @@ public:
     TDescriptor &mean);
   
   /**
-   * Calculates the distance between two descriptors
-   * @param a
-   * @param b
-   * @return distance
+   * Calculates the L1 distance between two descriptors
    */
   static double distance(const TDescriptor &a, const TDescriptor &b);
   

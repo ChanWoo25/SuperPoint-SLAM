@@ -1681,13 +1681,16 @@ void SPMatcher::ComputeThreeMaxima(vector<int>* histo, const int L, int &ind1, i
 
 float SPMatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
-    cv::Mat dist = a - b;
-    dist = dist * dist.t();
+    // cv::Mat dist = a - b;
+    // dist = dist * dist.t();
 
-    float s = dist.at<float>(0);
-    s /= 256;
+    // float s = dist.at<float>(0);
+    // s /= 256;
 
-    return std::sqrt(s);
+    // return std::sqrt(s);
+
+    cv::Mat dist = cv::abs(a - b);
+    return double(cv::sum(dist)[0]) / 256.0;
 }
 
 } //namespace ORB_SLAM

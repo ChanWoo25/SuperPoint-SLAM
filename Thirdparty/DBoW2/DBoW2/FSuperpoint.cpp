@@ -47,7 +47,28 @@ void FSUPERPOINT::meanValue(const std::vector<FSUPERPOINT::pDescriptor> &descrip
 }
 
 // --------------------------------------------------------------------------
-  
+
+///// L2-NORM
+// double FSUPERPOINT::distance(const FSUPERPOINT::TDescriptor &a, 
+//   const FSUPERPOINT::TDescriptor &b)
+// {
+//   if(a.empty() || b.empty())
+//   {
+//     std::cout << "ERROR: Mat is empty!\n";
+//     exit(1);
+//   }
+
+//   TDescriptor dist = a - b;
+//   dist = dist * dist.t();
+
+//   double s = dist.at<float>(0);
+//   s /= FSUPERPOINT::L;
+
+//   return std::sqrt(s);
+// }
+/////
+
+
 double FSUPERPOINT::distance(const FSUPERPOINT::TDescriptor &a, 
   const FSUPERPOINT::TDescriptor &b)
 {
@@ -57,13 +78,8 @@ double FSUPERPOINT::distance(const FSUPERPOINT::TDescriptor &a,
     exit(1);
   }
 
-  TDescriptor dist = a - b;
-  dist = dist * dist.t();
-
-  double s = dist.at<float>(0);
-  s /= FSUPERPOINT::L;
-
-  return std::sqrt(s);
+  TDescriptor dist = cv::abs(a - b);
+  return double(cv::sum(dist)[0]) / FSUPERPOINT::L;
 }
 
 // --------------------------------------------------------------------------

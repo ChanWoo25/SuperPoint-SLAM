@@ -35,11 +35,11 @@ SPDetector.scaleFactor: 2
 SPDetector.nLevels: 1
 
 ## SuperPoint Model: threshold
-SPDetector.IniThresSP: 0.045
+SPDetector.IniThresSP: 0.05
 SPDetector.MinThresSP: 0.03
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
-SPMatcher.levelup: 4
+SPMatcher.levelup: 3
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
