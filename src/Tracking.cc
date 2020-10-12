@@ -781,6 +781,7 @@ void Tracking::SPMonocularInitialization()
         cv::Mat tcw; // Current Camera Translation
         vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
 
+        // initialize and check whether Initializer have reconstructed
         if(mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated))
         {
             cout << "InitEnd-" << flush;
@@ -817,6 +818,7 @@ void Tracking::CreateInitialMapMonocular()
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
 
     // Compute BoW vector (ADD SP.ver)
+    // : converts all feature in frame to bag of words represatation
     if(mSensor == System::SP_MONOCULAR)
     {
         pKFini->ComputeSPBoW(mLevelup);
