@@ -1436,7 +1436,7 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
             m_nodes[nid].children.reserve(m_k);
         }
     }
-
+    std::cout << *this << endl;
     return true;
 
 }

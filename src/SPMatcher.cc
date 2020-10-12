@@ -433,6 +433,7 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
             continue;
 
         vector<size_t> vIndices2 = F2.GetFeaturesInArea(vbPrevMatched[i1].x,vbPrevMatched[i1].y, windowSize,level1,level1);
+        // F1 프레임에 있던 포인트 주변에 대응하는 F2 프레임의 window에서 Feature 수집
         // if(i1 % 10 == 0) // Debug - Pass
         // {
         //     stringstream ss;
@@ -481,22 +482,26 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
                 bestDist2=dist;
             }
         }
+        // 초기 value 4 이내의 가장 가까운 디스턴스 2개 추출
         // cout << "Best(" << bestDist << ", " << bestDist2 << ")-";
 
         if(bestDist<=TH_LOW)
         {
+            // 최소 value가 임계치 이하이고
             if(bestDist < (float)bestDist2 * mfNNratio)
             {   
+                // 다음 최소 value * fNNratio 보다 작을 때
                 if(vnMatches21[bestIdx2]>=0)
                 {
                     vnMatches12[vnMatches21[bestIdx2]]=-1;
                     nmatches--;
                 }
+                // 동일한 위치의 이전에 매칭된 점 제거하고(중복방지?)
                 vnMatches12[i1]=bestIdx2;
                 vnMatches21[bestIdx2]=i1;
                 vMatchedDistance[bestIdx2]=bestDist;
                 nmatches++;
-
+                // F1 프레임과 F2 프레임에 matching 추가 
                 /* Not Use */
                 if(mbCheckOrientation) 
                 {
