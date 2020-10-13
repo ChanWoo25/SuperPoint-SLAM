@@ -781,6 +781,7 @@ void Tracking::SPMonocularInitialization()
         cv::Mat tcw; // Current Camera Translation
         vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
 
+        // initialize and check whether Initializer have reconstructed
         if(mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated))
         {
             cout << "InitEnd-" << flush;
@@ -817,6 +818,7 @@ void Tracking::CreateInitialMapMonocular()
     KeyFrame* pKFcur = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
 
     // Compute BoW vector (ADD SP.ver)
+    // : converts all feature in frame to bag of words represatation
     if(mSensor == System::SP_MONOCULAR)
     {
         pKFini->ComputeSPBoW(mLevelup);
@@ -860,7 +862,7 @@ void Tracking::CreateInitialMapMonocular()
         mpMap->AddMapPoint(pMP);
     }
 
-    // Update Connections
+    // Update Connections : Updates all links in covisibillity graph
     pKFini->UpdateConnections();
     pKFcur->UpdateConnections();
 
@@ -1094,7 +1096,7 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        windowSize = 100; //SPSLAM Param 
+        windowSize = 14; //SPSLAM Param 
         nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
         cout << "SearchByProjection(" << nmatches << ")-" << flush;
 
@@ -1138,7 +1140,7 @@ bool Tracking::TrackWithMotionModel()
     }
     
     
-    if(nmatches<20)
+    if(nmatches<15)
         return false;
 
     // Optimize frame pose with all matches
