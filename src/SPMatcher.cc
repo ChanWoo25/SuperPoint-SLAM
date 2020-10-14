@@ -33,12 +33,16 @@ namespace SuperPointSLAM
 //  The distance of two SP Descriptors has a minimum of 0 and a maximum of 4.
 //  TH_LOW is the threshold value that the calculated distance value strictly satisfies the condition
 //  "TH_LOW" has a value that empirically suitable for Initialization.
-const float SPMatcher::TH_LOW = 0.01; 
+//const float SPMatcher::TH_LOW = 0.01;
+const float SPMatcher::TH_LOW = 0.7; 
+
 /*  TH_HIGH is a slightly relaxed threshold. */
-const float SPMatcher::TH_HIGH = 0.1;
+// const float SPMatcher::TH_HIGH = 0.1;
+const float SPMatcher::TH_HIGH = 0.3;
 
 const int SPMatcher::HISTO_LENGTH = 30;
 const int SPMatcher::DESCRIPTOR_LENGTH = 256;
+const float SPMatcher::BEST_DIST = 256.0;
 
 SPMatcher::SPMatcher(float nnratio, bool checkOri): mfNNratio(nnratio), mbCheckOrientation(checkOri)
 {
@@ -78,9 +82,9 @@ int SPMatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoints
 
         const cv::Mat MPdescriptor = pMP->GetDescriptor();
 
-        float bestDist   =  4;
+        float bestDist   =  BEST_DIST;
         float bestLevel  = -1;
-        float bestDist2  =  4;
+        float bestDist2  =  BEST_DIST;
         float bestLevel2 = -1;
         int bestIdx =-1 ;
 
@@ -203,9 +207,9 @@ int SPMatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoint
 
                 const cv::Mat &dKF= pKF->mDescriptors.row(realIdxKF);
 
-                float bestDist1=4;
+                float bestDist1 = BEST_DIST;
                 int bestIdxF =-1 ;
-                float bestDist2=4;
+                float bestDist2 = BEST_DIST;
 
                 for(size_t iF=0; iF<vIndicesF.size(); iF++)
                 {
@@ -229,7 +233,8 @@ int SPMatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoint
                         bestDist2=dist;
                     }
                 }
-
+                
+                // std::cout << "best12:(" << bestDist1<< "," << bestDist2 << ")-" << flush;
                 if(bestDist1<=TH_LOW)
                 {
                     if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
@@ -372,7 +377,7 @@ int SPMatcher::SearchByProjection(KeyFrame* pKF, cv::Mat Scw, const vector<MapPo
         // Match to the most similar keypoint in the radius
         const cv::Mat dMP = pMP->GetDescriptor();
 
-        float bestDist = 4;
+        float bestDist = BEST_DIST;
         int bestIdx = -1;
         for(vector<size_t>::const_iterator vit=vIndices.begin(), vend=vIndices.end(); vit!=vend; vit++)
         {
@@ -449,8 +454,8 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
         cv::Mat d1 = F1.mDescriptors.row(i1);
         // cout << "d1: " << d1 << endl;
 
-        float bestDist = 4.0;
-        float bestDist2 = 4.0;
+        float bestDist = BEST_DIST;
+        float bestDist2 = BEST_DIST;
         int bestIdx2 = -1;
 
 
@@ -471,15 +476,15 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
             
             if(dist < bestDist)
             {
-                bestDist2=bestDist;
-                bestDist=dist;
+                bestDist2 = bestDist;
+                bestDist = dist;
                 bestIdx2=i2;
             }
             else if(dist < bestDist2)
             {
                 // if(dist == bestDist)  // For Debug : ISSUE
                 //     continue;
-                bestDist2=dist;
+                bestDist2 = dist;
             }
         }
         // 초기 value 4 이내의 가장 가까운 디스턴스 2개 추출
@@ -598,9 +603,9 @@ int SPMatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &v
 
                 const cv::Mat &d1 = Descriptors1.row(idx1);
 
-                float bestDist1=4;
-                int bestIdx2 =-1 ;
-                float bestDist2=4;
+                float bestDist1 = BEST_DIST;
+                int bestIdx2 = -1 ;
+                float bestDist2 = BEST_DIST;
 
                 for(size_t i2=0, iend2=f2it->second.size(); i2<iend2; i2++)
                 {
@@ -1686,16 +1691,12 @@ void SPMatcher::ComputeThreeMaxima(vector<int>* histo, const int L, int &ind1, i
 
 float SPMatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
-    // cv::Mat dist = a - b;
-    // dist = dist * dist.t();
+    // cv::Mat dist = cv::abs(a - b);
+    // float d = double(cv::sum(dist)[0]) / 256.0;
 
-    // float s = dist.at<float>(0);
-    // s /= 256;
+    float d = (float)cv::norm(a, b, cv::NORM_L2);
 
-    // return std::sqrt(s);
-
-    cv::Mat dist = cv::abs(a - b);
-    return double(cv::sum(dist)[0]) / 256.0;
+    return d;
 }
 
 } //namespace ORB_SLAM

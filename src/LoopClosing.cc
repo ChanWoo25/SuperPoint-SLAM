@@ -260,7 +260,7 @@ bool LoopClosing::ComputeSim3()
     vector<Sim3Solver*> vpSim3Solvers;
 
     if(mpSPVocabulary!=NULL)
-        spmatcher = new SuperPointSLAM::SPMatcher(0.75, false);
+        spmatcher = new SuperPointSLAM::SPMatcher(0.9, false); /* For SuperPoint-SLAM  0.75 -> 0.9*/
     else
         matcher = new ORBmatcher(0.75, true);
 
@@ -625,7 +625,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
     SuperPointSLAM::SPMatcher *spmatcher(NULL);
     ORBmatcher *matcher(NULL);
     if(mpSPVocabulary!=NULL)
-        spmatcher = new SuperPointSLAM::SPMatcher(0.8, false);
+        spmatcher = new SuperPointSLAM::SPMatcher(0.9, false); /* For SuperPoint-SLAM  0.8 -> 0.9*/
     else
         matcher = new ORBmatcher(0.8, true);
 

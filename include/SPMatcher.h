@@ -107,6 +107,7 @@ public:
     static const float TH_HIGH;
     static const int HISTO_LENGTH;
     static const int DESCRIPTOR_LENGTH;
+    static const float BEST_DIST;
 
 
 protected:

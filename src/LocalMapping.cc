@@ -234,7 +234,7 @@ void LocalMapping::CreateNewMapPoints()
     SuperPointSLAM::SPMatcher *spmatcher(NULL);
     ORBmatcher *matcher(NULL);    
     if(mpCurrentKeyFrame->mpSPVocabulary!=NULL)
-        spmatcher = new SuperPointSLAM::SPMatcher(0.6, false);
+        spmatcher = new SuperPointSLAM::SPMatcher(0.9, false); /* For SuperPoint-SLAM 0.6-> 0.9 */
     else
         matcher = new ORBmatcher(0.6, false);
     //ORBmatcher matcher(0.6,false);
@@ -296,7 +296,7 @@ void LocalMapping::CreateNewMapPoints()
             cnt = matcher->SearchForTriangulation(mpCurrentKeyFrame,pKF2,F12,vMatchedIndices,false);
         else
             cnt = spmatcher->SearchForTriangulation(mpCurrentKeyFrame,pKF2,F12,vMatchedIndices,false);
-        cout << "LMtrg(" << cnt << ")~" << flush;
+        std::cout << "LMtrg(" << cnt << ")~" << flush;
 
         cv::Mat Rcw2 = pKF2->GetRotation();
         cv::Mat Rwc2 = Rcw2.t();

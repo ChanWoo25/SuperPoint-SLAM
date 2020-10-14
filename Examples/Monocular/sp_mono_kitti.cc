@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     {
         // Read image from file
         img = cv::imread(vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
-        cv::resize(img, img, cv::Size(1080, 360), 1., 1., cv::INTER_AREA);
+        // cv::resize(img, img, cv::Size(1080, 360), 1., 1., cv::INTER_AREA);
         double tframe = vTimestamps[ni];
 
         if(img.empty())

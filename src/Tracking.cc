@@ -763,8 +763,8 @@ void Tracking::SPMonocularInitialization()
 
         // Find correspondences nn_ratio:0.9, Check orientation:false.
         cout << "TryMatch-";
-        SuperPointSLAM::SPMatcher matcher(0.9,false);
-        int sp_window_size=100; // SPSLAM Param
+        SuperPointSLAM::SPMatcher matcher(0.95,false); // For SuperPoint-SLAM 0.9-> 0.95
+        int sp_window_size=15; // SPSLAM Param
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,sp_window_size);
 
         // Check if there are enough correspondences
@@ -961,7 +961,7 @@ bool Tracking::TrackReferenceKeyFrame()
     int nmatches;
     if(mSensor == System::SP_MONOCULAR)
     {   
-        SuperPointSLAM::SPMatcher matcher(0.7, false);
+        SuperPointSLAM::SPMatcher matcher(0.99, false); // For SuperPoint-SLAM 0.7 -> 0.99
         nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
     }
     else
@@ -1082,7 +1082,7 @@ bool Tracking::TrackWithMotionModel()
      
     if(mSensor == System::SP_MONOCULAR)
     {
-        SuperPointSLAM::SPMatcher spmatcher(0.9,false);
+        SuperPointSLAM::SPMatcher spmatcher(0.95,false); // For SuperPoint-SLAM 0.9 -> 0.95
 
         // Update last frame pose according to its reference keyframe
         // Create "visual odometry" points if in Localization Mode
@@ -1094,7 +1094,7 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        windowSize = 100; //SPSLAM Param 
+        windowSize = 15; //SPSLAM Param 
         nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
         cout << "SearchByProjection(" << nmatches << ")-" << flush;
 
@@ -1121,7 +1121,6 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        windowSize;
         if(mSensor!=System::STEREO)
             windowSize=15;
         else
@@ -1458,7 +1457,7 @@ void Tracking::SearchLocalPoints()
         
         if(mSensor == System::SP_MONOCULAR)
         {
-            SuperPointSLAM::SPMatcher spmatcher(0.8, false);
+            SuperPointSLAM::SPMatcher spmatcher(0.95, false); // For SuperPoint-SLAM 0.8 -> 0.95
             nmatches = spmatcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
         }
         else
@@ -1642,7 +1641,7 @@ bool Tracking::Relocalization()
     SuperPointSLAM::SPMatcher *spmatcher(NULL);
     ORBmatcher *matcher(NULL);    
     if(mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
-        spmatcher = new SuperPointSLAM::SPMatcher(0.75,false);
+        spmatcher = new SuperPointSLAM::SPMatcher(0.99,false); // For SuperPoint-SLAM 0.9 -> 0.99
     else
         matcher = new ORBmatcher(0.75,true);
 
@@ -1694,7 +1693,7 @@ bool Tracking::Relocalization()
     SuperPointSLAM::SPMatcher *spmatcher2(NULL);
     ORBmatcher *matcher2(NULL);    
     if(mSensor==System::SP_MONOCULAR)
-        spmatcher2 = new SuperPointSLAM::SPMatcher(0.9,false);
+        spmatcher2 = new SuperPointSLAM::SPMatcher(0.99,false); // For SuperPoint-SLAM 0.9 -> 0.99
     else
         matcher2 = new ORBmatcher(0.9,true);
 
