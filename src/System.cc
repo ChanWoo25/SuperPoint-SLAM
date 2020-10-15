@@ -108,7 +108,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         }
         cout << "Vocabulary loaded!" << endl << endl;
     }
-    
+    // string filename = "./tempVoc.txt";
+    // mpSPVocabulary->saveToTextFile(filename);
     
     cout << "All Main class Initial Construct ...\n\n";
     // Create KeyFrame Database

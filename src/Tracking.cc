@@ -1242,6 +1242,7 @@ bool Tracking::NeedNewKeyFrame()
 
     // Current the total number of Keyframes.
     const int nKFs = mpMap->KeyFramesInMap();
+    cout << "nKFs(" << nKFs << ")-" << flush;
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && nKFs>mMaxFrames)

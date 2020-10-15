@@ -1154,6 +1154,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
 
   if(m_weighting == TF || m_weighting == TF_IDF)
   {
+    int cnt(0);
     unsigned int i_feature = 0;
     for(fit = features.begin(); fit < features.end(); ++fit, ++i_feature)
     {
@@ -1168,7 +1169,13 @@ void TemplatedVocabulary<TDescriptor,F>::transform(
         v.addWeight(id, w);
         fv.addFeature(nid, i_feature);
       }
+      else
+      {
+        cnt++;
+      }
+      
     }
+    cout << "w=0(" << cnt << ")-";
     
     if(!v.empty() && !must)
     {
@@ -1437,8 +1444,31 @@ bool TemplatedVocabulary<TDescriptor,F>::loadFromTextFile(const std::string &fil
         }
     }
     std::cout << *this << endl;
-    return true;
 
+    for(int i=0; i<m_nodes[0].children.size(); i++)
+    {
+      int idx = m_nodes[0].children[i];
+      cout << endl << idx << ":" << m_nodes[idx].weight << flush;
+      for(int j=0; j<m_nodes[idx].children.size(); j++)
+      {
+        int idx2 = m_nodes[idx].children[j];
+        cout << endl << idx2 << ":" << m_nodes[idx2].weight << flush;
+      }
+    }
+
+  int zero(0);
+  for(int i=0; i<m_nodes.size(); i++)
+  {
+    if(m_nodes[i].weight<=0) zero++;
+  }
+  std::cout << "total(" << m_nodes.size() << ")-zero(" << zero << ")-" << std::flush;
+
+  for(int i=1; i<11; i++)
+  {
+    std::cout << std::endl << m_nodes[i].parent << " " << m_nodes[i].word_id << " " << m_nodes[i].descriptor.row(0);
+  }
+
+    return true;
 }
 
 // --------------------------------------------------------------------------
@@ -1448,6 +1478,7 @@ void TemplatedVocabulary<TDescriptor,F>::saveToTextFile(const std::string &filen
 {
     fstream f;
     f.open(filename.c_str(),ios_base::out);
+    if(!f.is_open()) cout << "fail open file";
     f << m_k << " " << m_L << " " << " " << m_scoring << " " << m_weighting << endl;
 
     for(size_t i=1; i<m_nodes.size();i++)
@@ -1463,6 +1494,7 @@ void TemplatedVocabulary<TDescriptor,F>::saveToTextFile(const std::string &filen
         f << F::toString(node.descriptor) << " " << (double)node.weight << endl;
     }
 
+    cout << "\nsave over!\n" << flush;
     f.close();
 }
 

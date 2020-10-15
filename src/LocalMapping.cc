@@ -230,6 +230,8 @@ void LocalMapping::CreateNewMapPoints()
         nn=20;
     const vector<KeyFrame*> vpNeighKFs = mpCurrentKeyFrame->GetBestCovisibilityKeyFrames(nn);
 
+    cout << "NeighKF(" << vpNeighKFs.size() << ")-" << flush;
+
     // For SuperPoint-SLAM
     SuperPointSLAM::SPMatcher *spmatcher(NULL);
     ORBmatcher *matcher(NULL);    
@@ -689,7 +691,7 @@ void LocalMapping::KeyFrameCulling()
     // in at least other 3 keyframes (in the same or finer scale)
     // We only consider close stereo points
     vector<KeyFrame*> vpLocalKeyFrames = mpCurrentKeyFrame->GetVectorCovisibleKeyFrames();
-
+    int cnt(0);
     for(vector<KeyFrame*>::iterator vit=vpLocalKeyFrames.begin(), vend=vpLocalKeyFrames.end(); vit!=vend; vit++)
     {
         KeyFrame* pKF = *vit;
@@ -744,8 +746,12 @@ void LocalMapping::KeyFrameCulling()
         }  
 
         if(nRedundantObservations>0.9*nMPs)
+        {
             pKF->SetBadFlag();
+            cnt++;
+        }    
     }
+    cout << "KFCulling(" << cnt << ")-" << flush;
 }
 
 cv::Mat LocalMapping::SkewSymmetricMatrix(const cv::Mat &v)
