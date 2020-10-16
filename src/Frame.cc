@@ -315,7 +315,8 @@ void Frame::ExtractORB(int flag, const cv::Mat &im)
 void Frame::ExtractSP(const cv::Mat &img)
 {
     mpSPDetector->detect(img, mpSPmodel, mvKeys, mDescriptors);
-    std::cout << "[Fr]Kpts(" << mvKeys.size() << ")-" << flush;
+
+    // std::cout << "[Fr]Kpts(" << mvKeys.size() << ")-" << flush;
 }
 
 void Frame::SetPose(cv::Mat Tcw)

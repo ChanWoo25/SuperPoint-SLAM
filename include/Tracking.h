@@ -96,6 +96,13 @@ public:
     // Input sensor
     int mSensor;
 
+    // Extra parameters
+    int rType;
+    int mLevelup;
+    int windowSize;
+    int LocalMapConstraint1;
+    int LocalMapConstraint2;
+
     // Current Frame
     Frame mCurrentFrame;
     cv::Mat mImGray;
@@ -107,7 +114,6 @@ public:
     std::vector<cv::Point3f> mvIniP3D;
     Frame mInitialFrame;
 
-    int mLevelup;
 
     // Lists used to recover the full camera trajectory at the end of the execution.
     // Basically we store the reference keyframe for each frame and its relative transformation

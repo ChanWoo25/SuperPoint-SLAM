@@ -1,8 +1,11 @@
 %YAML:1.0
+##################################
+### SuperPoint-SLAM Parameters ###
+##################################
 
-#--------------------------------------------------------------------------------------------
-# Camera Parameters. Adjust them!
-#--------------------------------------------------------------------------------------------
+#-----------------------------------#
+#  Camera Parameters. Adjust them!  #
+#-----------------------------------#
 
 # Camera calibration and distortion parameters (OpenCV) 
 Camera.fx: 721.5377
@@ -21,12 +24,19 @@ Camera.fps: 10.0
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
-#--------------------------------------------------------------------------------------------
-# SuperPoint Parameters
-#--------------------------------------------------------------------------------------------
+#--------------#
+#  For System  #
+#--------------#
+
+# 0: Release,  1:Debug(Print some information for debuggig),  2:Full Debug(Print more information for debuggig)
+System.RunType: 0
+  
+#------------------#
+#  For SPDetector  #
+#------------------#
 
 # SuperPoint Detector: Number of features per image
-SPDetector.nFeatures: 500
+# SPDetector.nFeatures: 500
 
 # SuperPoint Detector: Scale factor between levels in the scale pyramid 
 SPDetector.scaleFactor: 2
@@ -40,6 +50,9 @@ SPDetector.nLevels: 1
 ## You can lower these values if your images have low contrast
 SPDetector.IniThresSP: 0.0625
 SPDetector.MinThresSP: 0.05
+
+# ComputeSPBoW()'s transform()'s "levelup"  Parameter.
+SPMatcher.levelup: 1
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters

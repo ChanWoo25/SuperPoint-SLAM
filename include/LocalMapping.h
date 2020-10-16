@@ -44,7 +44,7 @@ class LocalMapping
 {
 public:
     LocalMapping(Map* pMap, const float bMonocular);
-    LocalMapping(Map* pMap, const float bMonocular, const string &strSettingPath);
+    LocalMapping(Map *pMap, const float bMonocular, const cv::FileStorage *pfsSettings);
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
@@ -77,6 +77,8 @@ public:
     }
 
     int mLevelup;
+    int rType;
+    float MaxCosParallaxRays;
 
 protected:
 

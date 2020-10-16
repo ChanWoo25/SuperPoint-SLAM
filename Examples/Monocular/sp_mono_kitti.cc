@@ -89,9 +89,14 @@ int main(int argc, char **argv)
 #endif
 
         // Pass the image to the SLAM system
-        cout << "SP:";
-        SLAM.TrackSPMonocular(img, tframe);
-        cout << endl;
+        if(SLAM.rtype == 0)
+            SLAM.TrackSPMonocular(img, tframe);
+        else
+        {
+            cout << " Frame [ " << ni << " ]\n";
+            SLAM.TrackSPMonocular(img, tframe);
+            cout << '\n' << endl;
+        }
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();

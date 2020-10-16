@@ -109,6 +109,10 @@ Tracking::Tracking(System *pSys, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawe
     else
         cout << "- color order: BGR (ignored if grayscale)" << endl;
 
+    rType = fSettings["System.RunType"];
+    windowSize = fSettings["SPMatcher.windowSize"];
+    LocalMapConstraint1 = fSettings["Tracking.LocalMapConstraint1"];
+    LocalMapConstraint2 = fSettings["Tracking.LocalMapConstraint2"];
 
     if(sensor == System::SP_MONOCULAR)
     {
@@ -124,11 +128,9 @@ Tracking::Tracking(System *pSys, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawe
         mpIniSPDetector = new SuperPointSLAM::SPDetector(2*nFeatures,fScaleFactor,nLevels,fIniThresSP,fMinThresSP);
 
         cout << "\nSuperPoint Detector Parameters: " << endl;
-        cout << "- Number of Features: " << nFeatures << endl;
         cout << "- Scale Levels: " << nLevels << endl;
         cout << "- Scale Factor: " << fScaleFactor << endl;
-        cout << "- Initial Fast Threshold: " << fIniThresSP << endl;
-        cout << "- Minimum Fast Threshold: " << fMinThresSP << endl;
+        cout << "- SuperPoint Prob Threshold: " << fIniThresSP << endl;
     }
     else
     {
@@ -175,7 +177,7 @@ Tracking::Tracking(System *pSys, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawe
     if(sensor==System::SP_MONOCULAR)
     {
         mLevelup = fSettings["SPMatcher.levelup"];
-        cout << "mLevelup(" << mLevelup << ")-" << flush;
+        cout << "mLevelup for SPMatcher: " << mLevelup << endl;
     }
 }
 
@@ -331,7 +333,7 @@ void Tracking::Track()
     // cout << "Track-" << flush;
 
     if(mState==NO_IMAGES_YET)
-    {   cout << "[T]NoImgYet-" << flush;
+    {   cout << "[Tr]NoImgYet" << endl;
         mState = NOT_INITIALIZED;
     }
 
@@ -341,7 +343,7 @@ void Tracking::Track()
     unique_lock<mutex> lock(mpMap->mMutexMapUpdate);
 
     if(mState==NOT_INITIALIZED)
-    {   cout << "[T]Init-" << flush;
+    {   cout << "[Tr]Init" << endl;
         /* Try Initialization */
         if(mSensor==System::STEREO || mSensor==System::RGBD)
             StereoInitialization();
@@ -356,7 +358,7 @@ void Tracking::Track()
             If Initialization is done Successful, "mState == OK" */ 
         if(mState!=OK)
         {
-            cout << "[T]InitFail-" << flush;
+            cout << "[Tr]InitFail" << endl;
             return;
         }
     }
@@ -379,16 +381,17 @@ void Tracking::Track()
                 if(mVelocity.empty() || mCurrentFrame.mnId<mnLastRelocFrameId+2)
                 {   /*  When there is 'no Motion model' in the first place, 
                         or it is not long since the last Relocalization, */
-                    cout << "[T]Ref-" << flush;
+                    if(rType>=1) cout << "[Tr] with Reference-" << endl;
                     bOK = TrackReferenceKeyFrame();
                 }
                 else
                 {   /* Normal behaviour -- Tracking assuming constant velocity motion */
-                    cout << "[T]Mot-" << flush; 
+                    if(rType>=1) cout << "[Tr] with Motion Model" << endl; 
                     bOK = TrackWithMotionModel();
                     /* If failed, Tracking with Vocabulary. */
                     if(!bOK) 
-                    {   cout << "[T]MotFail-";
+                    {   
+                        if(rType>=1) cout << "[Tr] Motion Model Fail!" << endl;
                         bOK = TrackReferenceKeyFrame();
                     }
                 }
@@ -413,11 +416,13 @@ void Tracking::Track()
                     // In last frame we tracked enough MapPoints in the map
 
                     if(!mVelocity.empty())
-                    {
+                    {   
+                        if(rType>=1) cout << "[Tr] with Motion Model" << endl; 
                         bOK = TrackWithMotionModel();
                     }
                     else
-                    {
+                    {   
+                        if(rType>=1) cout << "[Tr] with Reference-" << endl;
                         bOK = TrackReferenceKeyFrame();
                     }
                 }
@@ -435,7 +440,8 @@ void Tracking::Track()
                     vector<bool> vbOutMM;
                     cv::Mat TcwMM;
                     if(!mVelocity.empty())
-                    {
+                    {   
+                        if(rType>=1) cout << "[Tr] with Motion Model" << endl;  
                         bOKMM = TrackWithMotionModel();
                         vpMPsMM = mCurrentFrame.mvpMapPoints;
                         vbOutMM = mCurrentFrame.mvbOutlier;
@@ -471,7 +477,10 @@ void Tracking::Track()
         }
 
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
-        cout << "Track(" << (bOK?"OK":"LOST") << ")-" << flush;
+        
+        if(rType>=1) 
+            cout << "Track betweem Frame: " << (bOK?"OK":"LOST") << ")-" << endl;
+        
         /*  If we have an initial estimation of the camera pose and matching. Track the local map.
             At this moment, "bOK" indicates whether the camera pose estimation was successful. */
         if(!mbOnlyTracking)
@@ -487,8 +496,9 @@ void Tracking::Track()
             if(bOK && !mbVO)
                 bOK = TrackLocalMap();
         }
-
-        cout << "Map(" << (bOK?"OK":"LOST") << ")-" << flush;
+        
+        if(rType>=1) 
+            cout << "Track with Local Map: " << (bOK?"OK":"LOST") << endl;
 
         if(bOK)
             mState = OK;
@@ -536,7 +546,9 @@ void Tracking::Track()
 
             // Check if we need to insert a new keyframe
             if(NeedNewKeyFrame())
-            {   cout << "NewKey-" << flush;
+            {   
+                if(rType>=1) 
+                    cout << "Need New Keyframe" << endl;
                 CreateNewKeyFrame();
             }
 
@@ -744,14 +756,16 @@ void Tracking::SPMonocularInitialization()
             mpInitializer =  new Initializer(mCurrentFrame,1.0,200);
 
             fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
-            cout << "RF-";
+            if(rType>=1) 
+                cout << "[Init] Set Reference Keyframe" << endl;
             return;
         }
     }
     else
     {
         // Try to initialize
-        cout << "CF-";
+        if(rType>=1) 
+            cout << "[Init] Set Current Keyframe" << endl;
 
         if((int)mCurrentFrame.mvKeys.size()<=100)
         {
@@ -762,21 +776,24 @@ void Tracking::SPMonocularInitialization()
         }
 
         // Find correspondences nn_ratio:0.9, Check orientation:false.
-        cout << "TryMatch-";
-        SuperPointSLAM::SPMatcher matcher(0.95,false); // For SuperPoint-SLAM 0.9-> 0.95
+        SuperPointSLAM::SPMatcher matcher(0.9,false); // For SuperPoint-SLAM 0.9-> 0.95
         int sp_window_size=15; // SPSLAM Param
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,sp_window_size);
 
         // Check if there are enough correspondences
         if(nmatches<70)
         {
-            cout << "NotEnough(" << nmatches << "s)-" << flush;
+            if(rType>=1)
+                cout << "[Init] Not Enough Matches: " << nmatches << "s" << endl;
+            
             delete mpInitializer;
             mpInitializer = static_cast<Initializer*>(NULL);
             return;
         }
 
-        cout << "Enough(" << nmatches << "s)-" << flush;
+        if(rType>=1)
+            cout << "[Init] Enough Matches: " << nmatches << "s" << endl;
+
         cv::Mat Rcw; // Current Camera Rotation
         cv::Mat tcw; // Current Camera Translation
         vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
@@ -961,7 +978,7 @@ bool Tracking::TrackReferenceKeyFrame()
     int nmatches;
     if(mSensor == System::SP_MONOCULAR)
     {   
-        SuperPointSLAM::SPMatcher matcher(0.99, false); // For SuperPoint-SLAM 0.7 -> 0.99
+        SuperPointSLAM::SPMatcher matcher(0.7, false); // For SuperPoint-SLAM 0.7 -> 0.99
         nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
     }
     else
@@ -1078,11 +1095,11 @@ void Tracking::UpdateLastFrame()
 
 bool Tracking::TrackWithMotionModel()
 {
-    int nmatches, windowSize;
+    int nmatches;
      
     if(mSensor == System::SP_MONOCULAR)
     {
-        SuperPointSLAM::SPMatcher spmatcher(0.95,false); // For SuperPoint-SLAM 0.9 -> 0.95
+        SuperPointSLAM::SPMatcher spmatcher(0.9,false); // For SuperPoint-SLAM 0.9 -> 0.95
 
         // Update last frame pose according to its reference keyframe
         // Create "visual odometry" points if in Localization Mode
@@ -1094,17 +1111,18 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(), mCurrentFrame.mvpMapPoints.end(), static_cast<MapPoint*>(NULL));
 
         // Project points seen in previous frame
-        windowSize = 15; //SPSLAM Param 
         nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
-        cout << "SearchByProjection(" << nmatches << ")-" << flush;
+        
+        if(rType>=1)
+            cout << "Projected (" << nmatches << ")->" << flush;
 
         // If few matches, uses a wider window search
         if(nmatches<20)
         {
-            windowSize *= 2;
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-            nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, (mSensor==System::SP_MONOCULAR));
-            cout << "SearchByProjection2(" << nmatches << ")-" << flush;
+            nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, (windowSize*2), (mSensor==System::SP_MONOCULAR));
+            if(rType>=1)
+                cout << "Projected2(" << nmatches << ")->" << flush;
         }
 
     }
@@ -1127,12 +1145,16 @@ bool Tracking::TrackWithMotionModel()
             windowSize=7;
         nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,windowSize,mSensor==System::MONOCULAR);
 
+        if(rType>=1)
+            cout << "Projected (" << nmatches << ")->" << flush;
+
         // If few matches, uses a wider window search
         if(nmatches<20)
         {
-            windowSize *= 2;
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
-            nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, windowSize, mSensor==System::MONOCULAR);
+            nmatches = matcher.SearchByProjection(mCurrentFrame, mLastFrame, (windowSize*2), mSensor==System::MONOCULAR);
+            if(rType>=1)
+                cout << "Projected2(" << nmatches << ")->" << flush;
         }
     }
     
@@ -1170,7 +1192,9 @@ bool Tracking::TrackWithMotionModel()
         return nmatches>20;
     }
 
-    cout << "nmatchesMap(" << nmatchesMap << ")-" << flush;
+    if(rType>=1)
+        cout << "Observed(" << nmatchesMap << ")" << endl;
+    
     return nmatchesMap>=10;
 }
 
@@ -1178,7 +1202,8 @@ bool Tracking::TrackLocalMap()
 {
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
-    cout << "[T]LocalMap-" << flush;
+    if(rType>=1)
+        cout << "[Tr] Check MapPoints with LocalMap" << endl;
     UpdateLocalMap();
 
     SearchLocalPoints();
@@ -1212,11 +1237,10 @@ bool Tracking::TrackLocalMap()
     /*  Decide if the tracking was succesful
         More restrictive if there was a relocalization recently 
         If SuperPoint-SLAM, Less restrictive (SPTODO - Parameter Adjustment)*/ 
-    int first_constraint = 50, second_constraint = 30;
+    int first_constraint = LocalMapConstraint1, second_constraint = LocalMapConstraint2;
 
-    if(mSensor == System::SP_MONOCULAR)
-        first_constraint = 25, second_constraint = 15;
-    cout << "[T]Inlier(" << mnMatchesInliers << ")-" << flush;
+    if(rType>=1)
+        cout << "Inliers: " << mnMatchesInliers << endl;
 
     if((mCurrentFrame.mnId < mnLastRelocFrameId+mMaxFrames) && 
        (mnMatchesInliers < first_constraint))
@@ -1231,6 +1255,9 @@ bool Tracking::TrackLocalMap()
 
 bool Tracking::NeedNewKeyFrame()
 {
+    if(rType>=1)
+        cout << "Check whether New KeyFrame is needed." << endl;
+
     // NoUse
     if(mbOnlyTracking)
         return false;
@@ -1242,7 +1269,9 @@ bool Tracking::NeedNewKeyFrame()
 
     // Current the total number of Keyframes.
     const int nKFs = mpMap->KeyFramesInMap();
-    cout << "nKFs(" << nKFs << ")-" << flush;
+
+    if(rType==2)
+        cout << "The total number of KeyFramse: " << nKFs << endl;
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && nKFs>mMaxFrames)
@@ -1290,16 +1319,19 @@ bool Tracking::NeedNewKeyFrame()
 
     // Condition 1b: More than "MinFrames" have passed and Local Mapping is idle
     const bool c1b = (mCurrentFrame.mnId>=mnLastKeyFrameId+mMinFrames && bLocalMappingIdle);
-    cout << "CurID(" << (mCurrentFrame.mnId) << ")-LastId(" << (mnLastKeyFrameId) << ")-" << flush;
+    
+    if(rType>=1)
+        cout << "CurID(" << (mCurrentFrame.mnId) << ")-LastId(" << (mnLastKeyFrameId) << ")-" << flush;
+    
     //Condition 1c: tracking is weak & "SPmono==false".
     const bool c1c =  (mSensor!=System::MONOCULAR && mSensor!=System::SP_MONOCULAR) && 
                       (mnMatchesInliers<nRefMatches*0.25 || bNeedToInsertClose) ;
     
     // Condition 2: Few tracked points compared to reference keyframe. Lots of visual odometry compared to map matches.
     const bool c2 = ((mnMatchesInliers<nRefMatches*thRefRatio || bNeedToInsertClose) && mnMatchesInliers>15);
-    cout << "MatchCompare(" << mnMatchesInliers<< "," << (nRefMatches*thRefRatio) << ")-" << flush;
-    cout << "cond(" << c1a << "," << c1b << "," << c1c << "," << c2 << ")-";
-    cout << "bIdle(" << bLocalMappingIdle << ")-" << flush;
+    
+    if(rType>=1)
+        cout << "Local Mapping is " << (bLocalMappingIdle?"Running":"Idle") << endl;
     
     if((c1a||c1b||c1c)&&c2)
     {
@@ -1458,7 +1490,7 @@ void Tracking::SearchLocalPoints()
         
         if(mSensor == System::SP_MONOCULAR)
         {
-            SuperPointSLAM::SPMatcher spmatcher(0.95, false); // For SuperPoint-SLAM 0.8 -> 0.95
+            SuperPointSLAM::SPMatcher spmatcher(0.8, false); // For SuperPoint-SLAM 0.8 -> 0.95
             nmatches = spmatcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
         }
         else
@@ -1467,7 +1499,7 @@ void Tracking::SearchLocalPoints()
             nmatches = matcher.SearchByProjection(mCurrentFrame,mvpLocalMapPoints,th);
         }
 
-        cout << "SearchLocalPoints(" << nmatches << ")-" << flush;
+        // cout << "Number of Searched LocalPoints: " << nmatches << endl;
     }
 }
 
@@ -1642,7 +1674,7 @@ bool Tracking::Relocalization()
     SuperPointSLAM::SPMatcher *spmatcher(NULL);
     ORBmatcher *matcher(NULL);    
     if(mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
-        spmatcher = new SuperPointSLAM::SPMatcher(0.99,false); // For SuperPoint-SLAM 0.9 -> 0.99
+        spmatcher = new SuperPointSLAM::SPMatcher(0.9,false); // For SuperPoint-SLAM 0.9 -> 0.99
     else
         matcher = new ORBmatcher(0.75,true);
 
@@ -1694,7 +1726,7 @@ bool Tracking::Relocalization()
     SuperPointSLAM::SPMatcher *spmatcher2(NULL);
     ORBmatcher *matcher2(NULL);    
     if(mSensor==System::SP_MONOCULAR)
-        spmatcher2 = new SuperPointSLAM::SPMatcher(0.99,false); // For SuperPoint-SLAM 0.9 -> 0.99
+        spmatcher2 = new SuperPointSLAM::SPMatcher(0.9,false); // For SuperPoint-SLAM 0.9 -> 0.99
     else
         matcher2 = new ORBmatcher(0.9,true);
 

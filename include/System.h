@@ -65,7 +65,10 @@ public:
         SP_MONOCULAR=3
     };
     string mSPWeightPath = "SPWeight/superpoint.pt";
-    std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel; 
+    std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel;
+    
+    int rtype = 0;
+    cv::FileStorage *pfsSettings=NULL;
 
 public:
     /**

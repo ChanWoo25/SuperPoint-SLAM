@@ -71,12 +71,14 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     }
 
     //Check settings file
-    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
-    if(!fsSettings.isOpened())
+    pfsSettings = new cv::FileStorage(strSettingsFile.c_str(), cv::FileStorage::READ);
+    if(!(pfsSettings->isOpened()))
     {
        cerr << "Failed to open settings file at: " << strSettingsFile << endl;
        exit(-1);
     }
+
+    rtype = (*pfsSettings)["System.RunType"];
 
 
     //Load ORB or SuperPoint Vocabulary
@@ -133,7 +135,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     cout << "Tracker done\n";
     //Initialize the Local Mapping thread and launch
     if(mSensor==SP_MONOCULAR)
-        mpLocalMapper = new LocalMapping(mpMap, mSensor==SP_MONOCULAR, strSettingsFile);
+        mpLocalMapper = new LocalMapping(mpMap, mSensor==SP_MONOCULAR, pfsSettings);
     else
         mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
@@ -333,7 +335,9 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     {
         unique_lock<mutex> lock(mMutexMode);
         if(mbActivateLocalizationMode)
-        {   cout << "[S]Localization-" << flush;
+        {   
+            if(rtype>=1)
+                cout << "[Sys] Localization Mode" << endl;
             mpLocalMapper->RequestStop();
 
             // Wait until Local Mapping has effectively stopped
@@ -357,7 +361,9 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     {
         unique_lock<mutex> lock(mMutexReset);
         if(mbReset)
-        {   cout << "[S]Reset-" << flush;
+        {   
+            if(rtype>=1)
+                cout << "[S]Reset-" << flush;
             mpTracker->Reset();
             mbReset = false;
         }
@@ -370,10 +376,14 @@ cv::Mat System::TrackSPMonocular(const cv::Mat &im, const double &timestamp)
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
 
-#ifdef DEBUG
-    if(mTrackingState == Tracking::OK)
-        cout << "\n[Now Tcw]\n" << Tcw << endl;
-#endif
+    if(rtype==2)
+    {
+        if(mTrackingState == Tracking::OK)
+            cout << "[Returned Tcw]\n" << Tcw << endl;
+        else
+            cout << "Track Fail!!" << endl;
+    }
+
 
     return Tcw;
 }

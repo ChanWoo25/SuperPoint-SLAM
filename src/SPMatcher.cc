@@ -527,7 +527,6 @@ int SPMatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f>
 
     if(mbCheckOrientation)
     {
-        cout << "DoOriChk-"; 
         int ind1=-1;
         int ind2=-1;
         int ind3=-1;
@@ -829,7 +828,7 @@ int SPMatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2, cv::Mat F1
             f2it = vFeatVec2.lower_bound(f1it->first);
         }
     }
-    cout << "Dcnt(" << cnt << ")-" <<flush;
+    // cout << "Dcnt(" << cnt << ")-" <<flush;
 
 
 

@@ -86,6 +86,7 @@ void KeyFrame::ComputeSPBoW(int levelup)
         mpSPVocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,levelup);
     }
 
+    /* For Feature Vector Debugging (Print all NodeID and Weights.)
     cout << "\nnFeat(" << this->N << ")-" << "nNode(" << mFeatVec.size() << ")-" << flush;
     map<unsigned int, vector<unsigned int>>::iterator it;
     for(it=mFeatVec.begin(); it!=mFeatVec.end(); it++)
@@ -93,6 +94,7 @@ void KeyFrame::ComputeSPBoW(int levelup)
         cout << "NID:" << it->first << "(" << it->second.size() << ")" << flush;
     }
     cout << "\n" << flush;
+    */
 
 }
 
