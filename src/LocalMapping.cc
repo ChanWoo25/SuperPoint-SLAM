@@ -239,7 +239,7 @@ void LocalMapping::CreateNewMapPoints()
     SuperPointSLAM::SPMatcher *spmatcher(NULL);
     ORBmatcher *matcher(NULL);    
     if(mpCurrentKeyFrame->mpSPVocabulary!=NULL)
-        spmatcher = new SuperPointSLAM::SPMatcher(0.9, false); /* For SuperPoint-SLAM 0.6-> 0.9 */
+        spmatcher = new SuperPointSLAM::SPMatcher(0.6, false); /* For SuperPoint-SLAM 0.6-> 0.9 */
     else
         matcher = new ORBmatcher(0.6, false);
     //ORBmatcher matcher(0.6,false);
