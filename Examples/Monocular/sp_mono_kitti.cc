@@ -115,9 +115,14 @@ int main(int argc, char **argv)
         else if(ni>0)
             T = tframe-vTimestamps[ni-1];
 
-        if(ttrack<T)
-            usleep((T-ttrack)*1e6);
+        // if(ttrack<T)
+        //     usleep((T-ttrack)*1e6);
 
+        if(ttrack < 0.2)
+        {
+            usleep((0.2 - ttrack)*1e6);
+        }
+        
         // if(ttrack < 0.1)
         //     usleep((0.1-ttrack)*1e6);
     }
