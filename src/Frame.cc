@@ -316,7 +316,7 @@ void Frame::ExtractSP(const cv::Mat &img)
 {
     mpSPDetector->detect(img, mpSPmodel, mvKeys, mDescriptors, mnScaleLevels);
 
-    std::cout << "nKeypoints: " << mvKeys.size() << endl;
+//    std::cout << "nKeypoints: " << mvKeys.size() << endl;
 }
 
 void Frame::SetPose(cv::Mat Tcw)

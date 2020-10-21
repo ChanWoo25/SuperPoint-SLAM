@@ -49,18 +49,13 @@ SPDetector.nLevels: 1
 ## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 ## Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 ## You can lower these values if your images have low contrast
-<<<<<<< HEAD
 SPDetector.IniThresSP: 0.03
-SPDetector.MinThresSP: 0.015
-=======
-SPDetector.IniThresSP: 0.0625
 SPDetector.MinThresSP: 0.08
->>>>>>> scale
 
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
 SPMatcher.levelup: 0
-SPMatcher.windowSize: 30
+SPMatcher.windowSize: 15
 
 Tracking.LocalMapConstraint1: 50
 Tracking.LocalMapConstraint2: 30
