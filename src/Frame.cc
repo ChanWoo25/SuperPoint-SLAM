@@ -193,7 +193,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     ExtractORB(0,imGray);
 
     N = mvKeys.size();
-
+    cout << "nKey: " << N << endl;
     if(mvKeys.empty())
         return;
 

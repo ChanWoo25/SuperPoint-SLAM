@@ -40,8 +40,8 @@ LocalMapping::LocalMapping(Map *pMap, const float bMonocular, const cv::FileStor
     mbMonocular(bMonocular), mbResetRequested(false), mbFinishRequested(false), mbFinished(true), mpMap(pMap),
     mbAbortBA(false), mbStopped(false), mbStopRequested(false), mbNotStop(false), mbAcceptKeyFrames(true)
 {
-    mLevelup = (*pfsSettings)["SPMatcher.levelup"];
-    rType = (*pfsSettings)["System.RunType"];
+    mLevelup = (int)(*pfsSettings)["SPMatcher.levelup"];
+    rType = (int)(*pfsSettings)["System.RunType"];
     MaxCosParallaxRays = (*pfsSettings)["LocalMapper.cosParallaxRays"];
 }
 

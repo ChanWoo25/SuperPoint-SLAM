@@ -137,7 +137,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     if(mSensor==SP_MONOCULAR)
         mpLocalMapper = new LocalMapping(mpMap, mSensor==SP_MONOCULAR, pfsSettings);
     else
-        mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR);
+        mpLocalMapper = new LocalMapping(mpMap, mSensor==MONOCULAR, pfsSettings);
     mptLocalMapping = new thread(&ORB_SLAM2::LocalMapping::Run,mpLocalMapper);
     cout << "Local Mapping done\n";
     

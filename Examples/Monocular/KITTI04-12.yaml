@@ -21,6 +21,8 @@ Camera.fps: 10.0
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
+# 0: Release,  1:Debug(Print some information for debuggig),  2:Full Debug(Print more information for debuggig)
+System.RunType: 0
 #--------------------------------------------------------------------------------------------
 # ORB Parameters
 #--------------------------------------------------------------------------------------------
@@ -40,6 +42,14 @@ ORBextractor.nLevels: 8
 # You can lower these values if your images have low contrast
 ORBextractor.iniThFAST: 20
 ORBextractor.minThFAST: 7
+
+
+# ComputeSPBoW()'s transform()'s "levelup"  Parameter.
+SPMatcher.levelup: 4
+SPMatcher.windowSize: 15
+
+
+LocalMapper.cosParallaxRays: 0.9999
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
