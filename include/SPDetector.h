@@ -62,8 +62,8 @@ public:
      * @return cv::Mat 
      */
     void detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel,
-                    std::vector<cv::KeyPoint>& _keypoints, cv::Mat &_descriptors);
-
+                    std::vector<cv::KeyPoint>& _keypoints, cv::Mat &_descriptors, int nlevels=1);
+    
     int n_keypoints;
 
     std::vector<cv::Mat> mvImagePyramid;

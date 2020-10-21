@@ -106,7 +106,7 @@ SPDetector::SPDetector(int _nfeatures, float _scaleFactor, int _nlevels,
 }
 
 void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel,
-                    std::vector<cv::KeyPoint>& _keypoints, cv::Mat &_descriptors)
+                    std::vector<cv::KeyPoint>& _keypoints, cv::Mat &_descriptors, int nlevels)
 {
     if(_image.empty())
         return;
@@ -128,7 +128,7 @@ void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::S
     /* Return a "CUDA bool type Tensor"
      * 1 if there is a featrue, and 0 otherwise */ 
     at::Tensor kpts = (mProb > IniThresSP);  
-    
+
     /* Remove potential redundent features. */
     if(nms) 
     {   // Default=true
@@ -136,7 +136,32 @@ void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::S
     }
 
     /* Prepare grid_sampler() */ 
-    kpts = at::nonzero(kpts); // [N, 2] (y, x)               
+    kpts = at::nonzero(kpts); // [N, 2] (y, x)
+
+    /* Scale Factor Adjustment */
+    for(int i=1; i<nlevels; i++)
+    {
+        cv::Mat img_;
+        cv::Size sz = cv::Size(img.size().width*mvInvScaleFactor[i], img.size().height*mvInvScaleFactor[i]);
+        cv::resize(img, img_, sz);
+
+        at::Tensor xx = torch::from_blob((void*)img_.clone().data, \
+                                    {1, 1, img_.rows, img_.cols}, \
+                                    tensor_opts).to(mDevice);
+        xx = (xx + EPSILON) / 255.0; 
+        at::Tensor prob, desc;
+        mpSPModel->forward(xx, prob, desc);
+        prob = prob.squeeze(0);
+        at::Tensor kpts_ = (prob>MinThresSP);
+
+        if(nms)
+            SemiNMS(kpts_);
+
+        kpts_ = at::nonzero(kpts_) * (int)mvScaleFactor[i];
+
+        kpts = at::cat(at::TensorList{kpts, kpts_}, 0);
+    }
+
     at::Tensor fkpts = kpts.to(kFloat);
     at::Tensor grid = torch::zeros({1, 1, kpts.size(0), 2}).to(mDevice); 
     // grid.print(); // [CUDAFloatType [1, 1, 225, 2]]
@@ -161,8 +186,8 @@ void SPDetector::detect(cv::InputArray _image, std::shared_ptr<SuperPointSLAM::S
 
     /** Convert descriptor From at::Tensor To cv::Mat **/  
     cv::Size desc_size(mDesc.size(1), mDesc.size(0)); 
-    n_keypoints = mDesc.size(0); 
-    
+    n_keypoints = kpts.size(0); 
+
     // [256, N], CV_32F
     _descriptors.create(n_keypoints, 256, CV_32FC1);
     memcpy((void*)_descriptors.data, mDesc.data_ptr(), sizeof(float) * mDesc.numel());
