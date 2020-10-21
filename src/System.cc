@@ -444,6 +444,7 @@ void System::Shutdown(vector<float> &vTimesTrack)
 {
     mpTracker->PrintTable1(vTimesTrack);
     mpLocalMapper->PrintTable1();
+    mpLoopCloser->PrintTable2();
     
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();

@@ -89,6 +89,17 @@ public:
 
     int mLevelup;
 
+    vector<int> mvKeyFrames;
+    vector<int> mvEGEdges;
+    vector<float> mvTimesCandidate;
+    vector<float> mvTimesST;
+    vector<float> mvTimesFusion;
+    vector<float> mvTimesEGOpt;
+    vector<float> mvTimesLCTotal;
+    vector<float> mTempTime;
+
+    void PrintTable2();
+    
 protected:
 
     bool CheckNewKeyFrames();
