@@ -127,6 +127,13 @@ public:
 
     void Reset();
 
+    vector<float> mvTimesExt;
+    vector<float> mvTimesIniPose;
+    vector<float> mvTimesTrackLM;
+
+    void PrintTable1(vector<float> &vTimesTrackTotal);
+    void PrintTable1Value(vector<float> &times);
+
 protected:
 
     // Main tracking function. "It is independent of the input sensor."

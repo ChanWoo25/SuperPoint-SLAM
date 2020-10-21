@@ -317,11 +317,14 @@ cv::Mat Tracking::GrabImageSPMonocular(const cv::Mat &im, const double &timestam
             cvtColor(mImGray,mImGray,CV_BGRA2GRAY);
     }
 
+    double time;
     /* Create Frame Object. In Frame constructor, all keypoints are detected, and descripted. */
     if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET)
-        mCurrentFrame = Frame(mImGray, mpSPModel, timestamp, mpIniSPDetector, mpSPVocabulary, mK, mDistCoef, mbf, mThDepth);
+        mCurrentFrame = Frame(mImGray, mpSPModel, timestamp, mpIniSPDetector, mpSPVocabulary, mK, mDistCoef, mbf, mThDepth, time);
     else
         mCurrentFrame = Frame(mImGray, mpSPModel, timestamp, mpSPDetector, mpSPVocabulary, mK, mDistCoef, mbf, mThDepth);
+
+    mvTimesExt.push_back(time);
 
     Track();
 
@@ -366,6 +369,8 @@ void Tracking::Track()
     {   
         // System is initialized. Track Frame.
         bool bOK;
+
+        std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
         // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
         if(!mbOnlyTracking)
@@ -476,6 +481,10 @@ void Tracking::Track()
             }
         }
 
+        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+        double time = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+        mvTimesIniPose.push_back(time);
+
         mCurrentFrame.mpReferenceKF = mpReferenceKF;
         
         if(rType>=1) 
@@ -496,7 +505,11 @@ void Tracking::Track()
             if(bOK && !mbVO)
                 bOK = TrackLocalMap();
         }
-        
+
+        std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();        
+        time = std::chrono::duration_cast<std::chrono::duration<double> >(t3 - t2).count();
+        mvTimesTrackLM.push_back(time);
+
         if(rType>=1) 
             cout << "Track with Local Map: " << (bOK?"OK":"LOST") << endl;
 
@@ -1343,6 +1356,7 @@ bool Tracking::NeedNewKeyFrame()
         }
         else
         {
+            cout << "Local Mapping is not Idle." << endl << flush;
             mpLocalMapper->InterruptBA();
             if(mSensor!=System::MONOCULAR && mSensor!=System::SP_MONOCULAR)
             {
@@ -1933,6 +1947,43 @@ void Tracking::InformOnlyTracking(const bool &flag)
     mbOnlyTracking = flag;
 }
 
+void Tracking::PrintTable1(vector<float> &vTimesTrackTotal)
+{
+    cout << "\n-------------    Table 1    -------------" << endl;
 
+    printf("              [ TRACKING ]\n");
+    printf("%19s%7s%7s%7s", "Operation | ", "Median", "Mean", "Std\n");
+
+    printf("%19s", "ORB extraction | ");
+    PrintTable1Value(mvTimesExt);
+
+    printf("%19s", "Initial Pose Est.| ");
+    PrintTable1Value(mvTimesIniPose);
+
+    printf("%19s", "Track Local Map | ");
+    PrintTable1Value(mvTimesTrackLM);
+
+    printf("%19s", "Total | ");
+    PrintTable1Value(vTimesTrackTotal);
+}
+
+void Tracking::PrintTable1Value(vector<float> &times)
+{
+    sort(times.begin(), times.end());
+    int len = times.size();
+    float median = times[len/2];
+
+    float totaltime(0);
+    for(int i=0; i<len; i++)
+        totaltime += times[i];
+    float mean = totaltime/len;
+
+    float var(0);
+    for (int i=0; i<len; i++)
+        var += (mean-times[i])*(mean-times[i]);
+    float std = sqrt(var/len);
+
+    printf("%7.2f%7.2f%7.2f\n", (median*1000), (mean*1000), (std*1000));
+}
 
 } //namespace ORB_SLAM

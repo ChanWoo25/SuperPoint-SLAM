@@ -419,8 +419,10 @@ void System::Reset()
     mbReset = true;
 }
 
-void System::Shutdown()
+void System::Shutdown(vector<float> &vTimesTrack)
 {
+    mpTracker->PrintTable1(vTimesTrack);
+
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
     if(mpViewer)
