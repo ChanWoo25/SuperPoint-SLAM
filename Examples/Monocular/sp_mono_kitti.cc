@@ -118,9 +118,9 @@ int main(int argc, char **argv)
         // if(ttrack<T)
         //     usleep((T-ttrack)*1e6);
 
-        if(ttrack < 0.2)
+        if(ttrack < 0.15)
         {
-            usleep((0.2 - ttrack)*1e6);
+            usleep((0.15 - ttrack)*1e6);
         }
         
         // if(ttrack < 0.1)
