@@ -57,6 +57,8 @@ int main(int argc, char **argv)
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::SP_MONOCULAR,true);
+    cv::FileStorage f(cv::String(argv[2]).c_str(), cv::FileStorage::READ);
+    float fps = f["System.Fps"];
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
@@ -118,9 +120,9 @@ int main(int argc, char **argv)
         // if(ttrack<T)
         //     usleep((T-ttrack)*1e6);
 
-        if(ttrack < 0.15)
+        if(ttrack < fps)
         {
-            usleep((0.15 - ttrack)*1e6);
+            usleep((fps - ttrack)*1e6);
         }
         
         // if(ttrack < 0.1)
@@ -137,9 +139,19 @@ int main(int argc, char **argv)
     {
         totaltime+=vTimesTrack[ni];
     }
-    cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
+
+    cout << "==================================" << endl << endl;
+    printf("%15s: %5.3f\n", "Median Tracking", vTimesTrack[nImages/2]);
+    printf("%15s: %5.3f\n", "Mean Tracking", totaltime/nImages);
+    printf("%15s: %5d\n", "RunType", int(f["System.RunType"]));
+    printf("%15s: %5d\n", "scaleFactor", (int)f["SPDetector.scaleFactor"]);
+    printf("%15s: %5d\n", "nLevels", (int)f["SPDetector.nLevels"]);
+    printf("%15s: %5.3f\n", "IniThresSP", (float)f["SPDetector.IniThresSP"]);
+    printf("%15s: %5.3f\n", "MinThresSP", (float)f["SPDetector.MinThresSP"]);
+    printf("%15s: %5d\n", "levelup", (int)f["SPMatcher.levelup"]);
+    printf("%15s: %5d\n", "windowSize", (int)f["SPMatcher.windowSize"]);
+    printf("%15s: %5.3f\n", "FPS Limit", (float)fps);
+    cout << endl << "==================================" << endl;
 
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
