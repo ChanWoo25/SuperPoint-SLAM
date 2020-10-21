@@ -1109,7 +1109,7 @@ void Tracking::UpdateLastFrame()
 bool Tracking::TrackWithMotionModel()
 {
     int nmatches;
-     
+    
     if(mSensor == System::SP_MONOCULAR)
     {
         SuperPointSLAM::SPMatcher spmatcher(0.9,false); // For SuperPoint-SLAM 0.9 -> 0.95
@@ -1134,10 +1134,10 @@ bool Tracking::TrackWithMotionModel()
         {
             fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
             nmatches = spmatcher.SearchByProjection(mCurrentFrame, mLastFrame, (windowSize*2), (mSensor==System::SP_MONOCULAR));
+
             if(rType>=1)
                 cout << "Projected2(" << nmatches << ")->" << flush;
         }
-
     }
     else
     {
@@ -1174,6 +1174,8 @@ bool Tracking::TrackWithMotionModel()
     
     if(nmatches<20)
         return false;
+
+    mvMatchRatio.push_back(nmatches*1000/mCurrentFrame.N);
 
     // Optimize frame pose with all matches
     Optimizer::PoseOptimization(&mCurrentFrame);
@@ -1984,6 +1986,16 @@ void Tracking::PrintTable1Value(vector<float> &times)
     float std = sqrt(var/len);
 
     printf("%7.2f%7.2f%7.2f\n", (median*1000), (mean*1000), (std*1000));
+}
+
+void Tracking::PrintMatchRatio()
+{
+    float sum(0);
+    float n = mvMatchRatio.size();
+
+    for(float i=0; i<n; i++)
+        sum += mvMatchRatio[i];
+    cout << "mean match ratio: " << (sum/n)/10 << "%" << endl;    
 }
 
 } //namespace ORB_SLAM

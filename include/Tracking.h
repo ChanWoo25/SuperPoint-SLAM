@@ -134,6 +134,9 @@ public:
     void PrintTable1(vector<float> &vTimesTrackTotal);
     void PrintTable1Value(vector<float> &times);
 
+    vector<float> mvMatchRatio;
+    void PrintMatchRatio();
+
 protected:
 
     // Main tracking function. "It is independent of the input sensor."
