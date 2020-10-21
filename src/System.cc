@@ -419,10 +419,32 @@ void System::Reset()
     mbReset = true;
 }
 
+void System::Shutdown()
+{
+    mpLocalMapper->RequestFinish();
+    mpLoopCloser->RequestFinish();
+    if(mpViewer)
+    {
+        mpViewer->RequestFinish();
+        while(!mpViewer->isFinished())
+            usleep(5000);
+    }
+
+    // Wait until all thread have effectively stopped
+    while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
+    {
+        usleep(5000);
+    }
+
+    if(mpViewer)
+        pangolin::BindToContext("ORB-SLAM2: Map Viewer");
+}
+
 void System::Shutdown(vector<float> &vTimesTrack)
 {
     mpTracker->PrintTable1(vTimesTrack);
-
+    mpLocalMapper->PrintTable1();
+    
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
     if(mpViewer)
