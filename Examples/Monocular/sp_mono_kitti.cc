@@ -42,9 +42,9 @@ void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
  */
 int main(int argc, char **argv)
 {
-    if(argc != 4)
+    if(argc != 5)
     {
-        cerr << endl << "Usage: ./sp_mono_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./sp_mono_kitti path_to_vocabulary path_to_settings path_to_sequence repeat_time" << endl;
         return 1;
     }
 
@@ -142,7 +142,8 @@ int main(int argc, char **argv)
     cout << "-------" << endl << endl;
 
     // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
+    string s(1, argv[4][0]);
+    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory_" + s + ".txt");    
 
     return 0;
 }

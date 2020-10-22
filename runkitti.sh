@@ -9,7 +9,15 @@
 # ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI00-02.yaml ~/data_odometry_gray/dataset/sequences/00
 
 # Kitti Sequence [05]
- Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt Examples/Monocular/SPKITTI04-12.yaml ~/data_odometry_gray/dataset/sequences/05
+Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt Examples/Monocular/SPKITTI04-12.yaml ~/data_odometry_gray/dataset/sequences/05 0
+
+Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt Examples/Monocular/SPKITTI04-12.yaml ~/data_odometry_gray/dataset/sequences/05 1
+
+Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt Examples/Monocular/SPKITTI04-12.yaml ~/data_odometry_gray/dataset/sequences/05 2
+
+Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt Examples/Monocular/SPKITTI04-12.yaml ~/data_odometry_gray/dataset/sequences/05 3
+
+Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt Examples/Monocular/SPKITTI04-12.yaml ~/data_odometry_gray/dataset/sequences/05 4
 
 # 00 : 맵이 커지다가 lost
 # 01 : 건물 없는 고속도로. 금방 lost
