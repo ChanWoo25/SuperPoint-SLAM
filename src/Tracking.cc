@@ -1000,7 +1000,8 @@ bool Tracking::TrackReferenceKeyFrame()
         nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
     }
 
-    cout << "SearchByBoW(" << nmatches << ")-" << flush;
+    if(rType>=1)
+        cout << "SearchByBoW(" << nmatches << ")-" << flush;
     if(nmatches<15)
         return false;
 
@@ -1029,7 +1030,8 @@ bool Tracking::TrackReferenceKeyFrame()
                 nmatchesMap++;
         }
     }
-    cout << "nmatchesMap(" << nmatchesMap << ")-" << flush;
+    if(rType>=1)
+        cout << "nmatchesMap(" << nmatchesMap << ")-" << flush;
     return nmatchesMap>=10;
 }
 

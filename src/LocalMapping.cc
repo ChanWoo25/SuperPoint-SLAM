@@ -251,7 +251,7 @@ void LocalMapping::MapPointCulling()
 void LocalMapping::CreateNewMapPoints()
 {   
     if(rType >= 2)
-        cout << "[Create Nuew MapPoints]" << endl;
+        cout << "[Create New MapPoints]" << endl;
     // Retrieve neighbor keyframes in covisibility graph
     int nn = 10;
     if(mbMonocular)

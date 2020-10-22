@@ -139,3 +139,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Monocular)
 add_executable(sp_mono_kitti
 Examples/Monocular/sp_mono_kitti.cc)
 target_link_libraries(sp_mono_kitti ${PROJECT_NAME})
+
+add_executable(sp_mono_tum
+Examples/Monocular/sp_mono_tum.cc)
+target_link_libraries(sp_mono_tum ${PROJECT_NAME})
