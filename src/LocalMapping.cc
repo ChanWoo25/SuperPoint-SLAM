@@ -778,11 +778,13 @@ void LocalMapping::KeyFrameCulling()
             }
         }  
 
-        if(nRedundantObservations>0.9*nMPs)
+        // for superpoint-slam
+        if(nRedundantObservations>0.7*nMPs) // 0.9
         {
             pKF->SetBadFlag();
             cnt++;
         }    
+        // cout << "nRed(" << nRedundantObservations << ")-nMPs(" << nMPs << ")-";
     }
 
     if(rType >= 2)

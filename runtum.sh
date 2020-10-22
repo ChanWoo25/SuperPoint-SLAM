@@ -6,7 +6,7 @@
 ############################################################
 
 # fr1_xyz
-Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml ~/data_odometry_gray/fr1_xyz/
+ Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml ~/data_odometry_gray/fr1_xyz/
 
 # fr2_xyz
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml ~/data_odometry_gray/fr2_xyz/

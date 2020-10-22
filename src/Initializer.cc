@@ -754,8 +754,8 @@ bool Initializer::ReconstructH(vector<bool> &vbMatchesInliers, cv::Mat &H21, cv:
     cout << "Good(" << bestGood << "," << secondBestGood << ")-N(" << N << ")" << endl; 
     cout << "Parallax(" << bestParallax << "," << minParallax << ")" << endl;
 #endif
-
-    if(bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
+    // for superpoint-slam
+    if(secondBestGood<0.75*bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
     {   // Condition "secondBestGood<0.75*bestGood &&" Cause No Initialization Because of Same First and Second BestGood...
         // Empirically, either BestGood's Parallax is less than minValue, so we depend on it and remove the condition.
         vR[bestSolutionIdx].copyTo(R21);

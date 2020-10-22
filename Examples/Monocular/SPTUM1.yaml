@@ -52,7 +52,7 @@ SPDetector.MinThresSP: 0.08
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
 SPMatcher.levelup: 0
-SPMatcher.windowSize: 15
+SPMatcher.windowSize: 30
 
 Tracking.LocalMapConstraint1: 50
 Tracking.LocalMapConstraint2: 30
