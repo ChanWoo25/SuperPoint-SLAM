@@ -6,7 +6,11 @@
 ############################################################
 
 # fr1_xyz
+<<<<<<< HEAD
 Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_xyz/
+=======
+ Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml ~/data_odometry_gray/fr1_xyz/
+>>>>>>> b9c247507b611d280065a08b856152b628fcb355
 
 # fr2_xyz
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_xyz/
