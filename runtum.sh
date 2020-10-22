@@ -39,7 +39,7 @@
 # 초기 맵만 잘 만들면 어느정도는 되지만 끝가지 가기엔 무리가 있음
 
 # fr3_str_tex_far
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml ~/data_odometry_gray/fr3_str_tex_far/
+ Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml ~/data_odometry_gray/fr3_str_tex_far/
 # 잘됨
 
 # fr3_str_tex_near

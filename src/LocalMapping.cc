@@ -779,7 +779,7 @@ void LocalMapping::KeyFrameCulling()
         }  
 
         // for superpoint-slam
-        if(nRedundantObservations>0.9*nMPs) // 0.9
+        if(nRedundantObservations>0.95*nMPs) // 0.9
         {
             pKF->SetBadFlag();
             cnt++;

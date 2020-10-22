@@ -56,89 +56,89 @@ int main(int argc, char **argv)
 
     int nImages = vstrImageFilenames.size();
 
-    // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::SP_MONOCULAR,true);
+        // Create SLAM system. It initializes all system threads and gets ready to process frames.
+        ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::SP_MONOCULAR,true);
 
-    // Vector for tracking time statistics
-    vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages);
+        // Vector for tracking time statistics
+        vector<float> vTimesTrack;
+        vTimesTrack.resize(nImages);
 
-    cout << endl << "-------" << endl;
-    cout << "Start processing sequence ..." << endl;
-    cout << "Images in the sequence: " << nImages << endl << endl;
+        cout << endl << "-------" << endl;
+        cout << "Start processing sequence ..." << endl;
+        cout << "Images in the sequence: " << nImages << endl << endl;
 
-    // Main loop
-    cv::Mat im;
-    for(int ni=0; ni<nImages; ni++)
-    {
-        // Read image from file
-        im = cv::imread(string(argv[3])+"/"+vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
-        double tframe = vTimestamps[ni];
-
-        if(im.empty())
+        // Main loop
+        cv::Mat im;
+        for(int ni=0; ni<nImages; ni++)
         {
-            cerr << endl << "Failed to load image at: "
-                 << string(argv[3]) << "/" << vstrImageFilenames[ni] << endl;
-            return 1;
-        }
+            // Read image from file
+            im = cv::imread(string(argv[3])+"/"+vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
+            double tframe = vTimestamps[ni];
 
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
-#endif
+            if(im.empty())
+            {
+                cerr << endl << "Failed to load image at: "
+                    << string(argv[3]) << "/" << vstrImageFilenames[ni] << endl;
+                return 1;
+            }
 
-        // Pass the image to the SLAM system
-        if(SLAM.rtype == 0)
-            SLAM.TrackSPMonocular(im,tframe);
-        else
-        {
-            cout << " Frame [ " << ni << " ]\n";
-            SLAM.TrackSPMonocular(im, tframe);
-            cout << '\n' << endl;
-        }
+    #ifdef COMPILEDWITHC11
+            std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+    #else
+            std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
+    #endif
 
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
-#endif
+            // Pass the image to the SLAM system
+            if(SLAM.rtype == 0)
+                SLAM.TrackSPMonocular(im,tframe);
+            else
+            {
+                cout << " Frame [ " << ni << " ]\n";
+                SLAM.TrackSPMonocular(im, tframe);
+                cout << '\n' << endl;
+            }
 
-        double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+    #ifdef COMPILEDWITHC11
+            std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    #else
+            std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
+    #endif
 
-        vTimesTrack[ni]=ttrack;
+            double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
-        // Wait to load the next frame
-        double T=0;
-        if(ni<nImages-1)
-            T = vTimestamps[ni+1]-tframe;
-        else if(ni>0)
-            T = tframe-vTimestamps[ni-1];
+            vTimesTrack[ni]=ttrack;
 
-        if(ttrack<T)
-            usleep((T-ttrack)*1e6);
+            // Wait to load the next frame
+            double T=0;
+            if(ni<nImages-1)
+                T = vTimestamps[ni+1]-tframe;
+            else if(ni>0)
+                T = tframe-vTimestamps[ni-1];
+
+            if(ttrack<T)
+                usleep((T-ttrack)*1e6);
 
         // if(ttrack < 0.1)
         //     usleep((0.1 - ttrack)*1e6);
 
-    }
+        }
 
-    // Stop all threads
-    SLAM.Shutdown(vTimesTrack);
+        // Stop all threads
+        SLAM.Shutdown(vTimesTrack);
 
-    // Tracking time statistics
-    sort(vTimesTrack.begin(),vTimesTrack.end());
-    float totaltime = 0;
-    for(int ni=0; ni<nImages; ni++)
-    {
-        totaltime+=vTimesTrack[ni];
-    }
-    cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
-    cout << "-------" << endl << endl;
+        // Tracking time statistics
+        sort(vTimesTrack.begin(),vTimesTrack.end());
+        float totaltime = 0;
+        for(int ni=0; ni<nImages; ni++)
+        {
+            totaltime+=vTimesTrack[ni];
+        }
+        cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
+        cout << "mean tracking time: " << totaltime/nImages << endl;
+        cout << "-------" << endl << endl;
 
-    // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+        // Save camera trajectory
+        SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
 
     return 0;
 }
