@@ -71,21 +71,37 @@ void LoopClosing::Run()
 {
     mbFinished =false;
 
+    std::chrono::steady_clock::time_point t1,t2,t3,t4;
+    double time;
+    mTempTime.resize(3);
+
     while(1)
     {
+        t1 = std::chrono::steady_clock::now();
         // Check if there are keyframes in the queue
         if(CheckNewKeyFrames())
         {
             // Detect loop candidates and check covisibility consistency
             if(DetectLoop())
             {
-               // Compute similarity transformation [sR|t]
-               // In the stereo/RGBD case s=1
-               if(ComputeSim3())
-               {
-                   // Perform loop fusion and pose graph optimization
-                   CorrectLoop();
-               }
+                t2 = std::chrono::steady_clock::now();
+                // Compute similarity transformation [sR|t]
+                // In the stereo/RGBD case s=1
+                if(ComputeSim3())
+                {
+                    t3 = std::chrono::steady_clock::now();
+                    // Perform loop fusion and pose graph optimization
+                    CorrectLoop();
+                    t4 = std::chrono::steady_clock::now();
+
+                    mvTimesCandidate.push_back(mTempTime[0]);
+                    time = std::chrono::duration_cast<std::chrono::duration<double> >(t3 - t2).count();
+                    mvTimesST.push_back(time);
+                    mvTimesFusion.push_back(mTempTime[1]);
+                    mvTimesEGOpt.push_back(mTempTime[2]);
+                    time = std::chrono::duration_cast<std::chrono::duration<double> >(t4 - t1).count();
+                    mvTimesLCTotal.push_back(time);
+                }
             }
         }       
 
@@ -154,8 +170,12 @@ bool LoopClosing::DetectLoop()
             minScore = score;
     }
 
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     // Query the database imposing the minimum score
     vector<KeyFrame*> vpCandidateKFs = mpKeyFrameDB->DetectLoopCandidates(mpCurrentKF, minScore);
+
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    mTempTime[0] = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
     // If there are no loop candidates, just add new keyframe and return false
     if(vpCandidateKFs.empty())
@@ -571,11 +591,14 @@ void LoopClosing::CorrectLoop()
 
     }
 
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
     // Project MapPoints observed in the neighborhood of the loop keyframe
     // into the current keyframe and neighbors using corrected poses.
     // Fuse duplications.
     SearchAndFuse(CorrectedSim3);
 
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    mTempTime[1] = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
     // After the MapPoint fusion, new links in the covisibility graph will appear attaching both sides of the loop
     map<KeyFrame*, set<KeyFrame*> > LoopConnections;
@@ -598,8 +621,12 @@ void LoopClosing::CorrectLoop()
         }
     }
 
+    t1 = std::chrono::steady_clock::now();
     // Optimize graph
     Optimizer::OptimizeEssentialGraph(mpMap, mpMatchedKF, mpCurrentKF, NonCorrectedSim3, CorrectedSim3, LoopConnections, mbFixScale);
+
+    t2 = std::chrono::steady_clock::now();
+    mTempTime[2] = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
 
     mpMap->InformNewBigChange();
 
@@ -612,6 +639,9 @@ void LoopClosing::CorrectLoop()
     mbFinishedGBA = false;
     mbStopGBA = false;
     mpThreadGBA = new thread(&LoopClosing::RunGlobalBundleAdjustment,this,mpCurrentKF->mnId);
+
+    mvKeyFrames.push_back(mpMap->KeyFramesInMap());
+    mvEGEdges.push_back(mpMap->GetEdgeNumByWeight());
 
     // Loop closed. Release Local Mapping.
     mpLocalMapper->Release();    
@@ -819,5 +849,27 @@ bool LoopClosing::isFinished()
     return mbFinished;
 }
 
+void LoopClosing::PrintTable2()
+{
+    cout << "-----------------------------    Table 2    -----------------------------" << endl;
+    printf("                            [ Loop Closing ]\n");
+    printf("%46s%19s","|Loop Detection(ms)|", "Loop Correction(s)|\n");
+    printf("%6s%10s%11s%11s%8s%8s%11s%7s", "Loop |", "KeyFrames", "EG Edges |", "Candidates", "ST |", "Fusion", "EG Opt |","Total\n");
+
+    int numloop = mvKeyFrames.size();
+
+    for(int loop=0; loop<numloop; loop++)
+    {
+        printf("%4d |", loop+1);
+        printf("%10d", mvKeyFrames[loop]);
+        printf("%9d |", mvEGEdges[loop]);
+        printf("%11.2f", mvTimesCandidate[loop]*1000);
+        printf("%6.2f |", mvTimesST[loop]*1000);
+        printf("%8.2f", mvTimesFusion[loop]);
+        printf("%9.2f |", mvTimesEGOpt[loop]);
+        printf("%6.2f\n", mvTimesLCTotal[loop]);
+    }
+    cout << "-------------------------------------------------------------------------" << endl;
+}
 
 } //namespace ORB_SLAM

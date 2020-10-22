@@ -80,6 +80,16 @@ public:
     int rType;
     float MaxCosParallaxRays;
 
+    vector<float> mvTimesKFInsert;
+    vector<float> mvTimesMPCulling;
+    vector<float> mvTimesMPCreat;
+    vector<float> mvTimesLocalBA;
+    vector<float> mvTimesKFCulling;
+    vector<float> mvTimesLMTotal;
+
+    void PrintTable1();
+    void PrintTable1Value(vector<float> &times);
+
 protected:
 
     bool CheckNewKeyFrames();

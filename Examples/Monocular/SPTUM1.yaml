@@ -1,0 +1,75 @@
+%YAML:1.0
+
+#--------------------------------------------------------------------------------------------
+# Camera Parameters. Adjust them!
+#--------------------------------------------------------------------------------------------
+
+# Camera calibration and distortion parameters (OpenCV) 
+Camera.fx: 517.306408
+Camera.fy: 516.469215
+Camera.cx: 318.643040
+Camera.cy: 255.313989
+
+Camera.k1: 0.262383
+Camera.k2: -0.953104
+Camera.p1: -0.005358
+Camera.p2: 0.002628
+Camera.k3: 1.163314
+
+# Camera frames per second 
+Camera.fps: 30.0
+
+# Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+Camera.RGB: 1
+
+#--------------#
+#  For System  #
+#--------------#
+
+# 0: Release,  1:Debug(Print some information for debuggig),  2:Full Debug(Print more information for debuggig)
+System.RunType: 0
+  
+#------------------#
+#  For SPDetector  #
+#------------------#
+
+# SuperPoint Detector: Number of features per image
+# SPDetector.nFeatures: 500
+
+# SuperPoint Detector: Scale factor between levels in the scale pyramid 
+SPDetector.scaleFactor: 2
+
+# SuperPoint Detector: Number of levels in the scale pyramid
+SPDetector.nLevels: 1
+
+## ORB Extractor: Fast threshold
+## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+## Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+## You can lower these values if your images have low contrast
+SPDetector.IniThresSP: 0.02
+SPDetector.MinThresSP: 0.08
+
+
+# ComputeSPBoW()'s transform()'s "levelup"  Parameter.
+SPMatcher.levelup: 0
+SPMatcher.windowSize: 15
+
+Tracking.LocalMapConstraint1: 50
+Tracking.LocalMapConstraint2: 30
+
+LocalMapper.cosParallaxRays: 0.9999
+
+#--------------------------------------------------------------------------------------------
+# Viewer Parameters
+#--------------------------------------------------------------------------------------------
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize:2
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3
+Viewer.ViewpointX: 0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -1.8
+Viewer.ViewpointF: 500
+

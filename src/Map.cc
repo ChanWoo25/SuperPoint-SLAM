@@ -130,4 +130,17 @@ void Map::clear()
     mvpKeyFrameOrigins.clear();
 }
 
+int Map::GetEdgeNumByWeight()
+{
+    int numEGEdges(0);
+    vector<KeyFrame*> vKeyFrames = vector<KeyFrame*>(mspKeyFrames.begin(),mspKeyFrames.end());
+    for(int i=0; i<vKeyFrames.size(); i++)
+    {
+        const vector<KeyFrame*> vEGKFs = vKeyFrames[i]->GetCovisiblesByWeight(100);
+        if(!vEGKFs.empty())
+            numEGEdges += vEGKFs.size();
+    }
+    return numEGEdges/2;
+}
+
 } //namespace ORB_SLAM

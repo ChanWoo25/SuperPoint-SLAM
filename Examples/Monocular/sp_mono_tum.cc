@@ -28,15 +28,15 @@
 
 #include<opencv2/core/core.hpp>
 
-#include"System.h"
+#include<System.h>
 
 using namespace std;
 
-void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
+void LoadImages(const string &strFile, vector<string> &vstrImageFilenames,
                 vector<double> &vTimestamps);
 
 /** 
- * Run SuperPoint-SLAM with Kitti Dataset.
+ * Run SuperPoint-SLAM with TUM Dataset.
  * Distortion Coefficients are all zeros. k1 = k2 = p1 = p2 = 0.
  * 
  */
@@ -44,21 +44,20 @@ int main(int argc, char **argv)
 {
     if(argc != 4)
     {
-        cerr << endl << "Usage: ./sp_mono_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./sp_mono_tum path_to_vocabulary path_to_settings path_to_sequence" << endl;
         return 1;
     }
 
     // Retrieve paths to images
     vector<string> vstrImageFilenames;
     vector<double> vTimestamps;
-    LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
+    string strFile = string(argv[3])+"/rgb.txt";
+    LoadImages(strFile, vstrImageFilenames, vTimestamps);
 
     int nImages = vstrImageFilenames.size();
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::SP_MONOCULAR,true);
-    cv::FileStorage f(cv::String(argv[2]).c_str(), cv::FileStorage::READ);
-    float fps = f["System.Fps"];
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
@@ -69,20 +68,19 @@ int main(int argc, char **argv)
     cout << "Images in the sequence: " << nImages << endl << endl;
 
     // Main loop
-    cv::Mat img;
+    cv::Mat im;
     for(int ni=0; ni<nImages; ni++)
     {
         // Read image from file
-        img = cv::imread(vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
-        // cv::resize(img, img, cv::Size(1080, 360), 1., 1., cv::INTER_AREA);
+        im = cv::imread(string(argv[3])+"/"+vstrImageFilenames[ni],CV_LOAD_IMAGE_UNCHANGED);
         double tframe = vTimestamps[ni];
 
-        if(img.empty())
+        if(im.empty())
         {
-            cerr << endl << "Failed to load image at: " << vstrImageFilenames[ni] << endl;
+            cerr << endl << "Failed to load image at: "
+                 << string(argv[3]) << "/" << vstrImageFilenames[ni] << endl;
             return 1;
         }
-        // cout << "ReadImg-";
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
@@ -92,11 +90,11 @@ int main(int argc, char **argv)
 
         // Pass the image to the SLAM system
         if(SLAM.rtype == 0)
-            SLAM.TrackSPMonocular(img, tframe);
+            SLAM.TrackSPMonocular(im,tframe);
         else
         {
             cout << " Frame [ " << ni << " ]\n";
-            SLAM.TrackSPMonocular(img, tframe);
+            SLAM.TrackSPMonocular(im, tframe);
             cout << '\n' << endl;
         }
 
@@ -117,16 +115,12 @@ int main(int argc, char **argv)
         else if(ni>0)
             T = tframe-vTimestamps[ni-1];
 
-        // if(ttrack<T)
-        //     usleep((T-ttrack)*1e6);
+        if(ttrack<T)
+            usleep((T-ttrack)*1e6);
 
-        if(ttrack < fps)
-        {
-            usleep((fps - ttrack)*1e6);
-        }
-        
-        // if(ttrack < 0.1)
-        //     usleep((0.1-ttrack)*1e6);
+        // if(ttrack < 0.15)
+        //     usleep((0.15 - ttrack)*1e6);
+
     }
 
     // Stop all threads
@@ -139,58 +133,41 @@ int main(int argc, char **argv)
     {
         totaltime+=vTimesTrack[ni];
     }
-
-    cout << "==================================" << endl << endl;
-    printf("%15s: %5.3f\n", "Median Tracking", vTimesTrack[nImages/2]);
-    printf("%15s: %5.3f\n", "Mean Tracking", totaltime/nImages);
-    printf("%15s: %5d\n", "RunType", int(f["System.RunType"]));
-    printf("%15s: %5d\n", "scaleFactor", (int)f["SPDetector.scaleFactor"]);
-    printf("%15s: %5d\n", "nLevels", (int)f["SPDetector.nLevels"]);
-    printf("%15s: %5.3f\n", "IniThresSP", (float)f["SPDetector.IniThresSP"]);
-    printf("%15s: %5.3f\n", "MinThresSP", (float)f["SPDetector.MinThresSP"]);
-    printf("%15s: %5d\n", "levelup", (int)f["SPMatcher.levelup"]);
-    printf("%15s: %5d\n", "windowSize", (int)f["SPMatcher.windowSize"]);
-    printf("%15s: %5.3f\n", "FPS Limit", (float)fps);
-    
-    cout << endl << "==================================" << endl;
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
     cout << "-------" << endl << endl;
 
     // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
+    SLAM.SaveKeyFrameTrajectoryTUM("TUM-Trajectory.txt");
 
     return 0;
 }
 
-void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilenames, vector<double> &vTimestamps)
+void LoadImages(const string &strFile, vector<string> &vstrImageFilenames, vector<double> &vTimestamps)
 {
-    ifstream fTimes;
-    string strPathTimeFile = strPathToSequence + "/times.txt";
-    fTimes.open(strPathTimeFile.c_str());
-    while(!fTimes.eof())
+    ifstream f;
+    f.open(strFile.c_str());
+
+    // skip first three lines
+    string s0;
+    getline(f,s0);
+    getline(f,s0);
+    getline(f,s0);
+
+    while(!f.eof())
     {
         string s;
-        getline(fTimes,s);
+        getline(f,s);
         if(!s.empty())
         {
             stringstream ss;
             ss << s;
             double t;
+            string sRGB;
             ss >> t;
             vTimestamps.push_back(t);
+            ss >> sRGB;
+            vstrImageFilenames.push_back(sRGB);
         }
-    }
-
-    string strPrefixLeft = strPathToSequence + "/image_0/";
-
-    const int nTimes = vTimestamps.size();
-    vstrImageFilenames.resize(nTimes);
-
-    for(int i=0; i<nTimes; i++)
-    {
-        stringstream ss;
-        ss << setfill('0') << setw(6) << i;
-        vstrImageFilenames[i] = strPrefixLeft + ss.str() + ".png";
     }
 }

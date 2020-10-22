@@ -139,3 +139,7 @@ target_link_libraries(mono_kitti ${PROJECT_NAME})
 add_executable(sp_mono_kitti
 Examples/Monocular/sp_mono_kitti.cc)
 target_link_libraries(sp_mono_kitti ${PROJECT_NAME})
+
+add_executable(sp_mono_tum
+Examples/Monocular/sp_mono_tum.cc)
+target_link_libraries(sp_mono_tum ${PROJECT_NAME})

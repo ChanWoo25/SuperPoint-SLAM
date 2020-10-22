@@ -60,6 +60,9 @@ void LocalMapping::Run()
 
     mbFinished = false;
 
+    std::chrono::steady_clock::time_point t1,t2,t3,t4,t5,t6,t7,t8;
+    double time;
+
     while(1)
     {
         // Tracking will see that Local Mapping is busy
@@ -69,15 +72,19 @@ void LocalMapping::Run()
         // Check if there are keyframes in the queue
         if(CheckNewKeyFrames())
         {
+            t1 = std::chrono::steady_clock::now();
             // BoW conversion and insertion in Map
             ProcessNewKeyFrame();
 
+            t2 = std::chrono::steady_clock::now();
             // Check recent MapPoints
             MapPointCulling();
 
+            t3 = std::chrono::steady_clock::now();
             // Triangulate new MapPoints
             CreateNewMapPoints();
 
+            t4 = std::chrono::steady_clock::now();
             if(!CheckNewKeyFrames())
             {
                 // Find more matches in neighbor keyframes and fuse point duplications
@@ -89,15 +96,34 @@ void LocalMapping::Run()
 
             if(!CheckNewKeyFrames() && !stopRequested())
             {
+                t5 = std::chrono::steady_clock::now();
                 // Local BA
                 if(mpMap->KeyFramesInMap()>2)
                     Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpMap);
 
+                t6 = std::chrono::steady_clock::now();
                 // Check redundant local Keyframes
                 KeyFrameCulling();
+
+                t7 = std::chrono::steady_clock::now();
             }
 
             mpLoopCloser->InsertKeyFrame(mpCurrentKeyFrame);
+
+            t8 = std::chrono::steady_clock::now();
+
+            time = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+            mvTimesKFInsert.push_back(time);
+            time = std::chrono::duration_cast<std::chrono::duration<double> >(t3 - t2).count();
+            mvTimesMPCulling.push_back(time);
+            time = std::chrono::duration_cast<std::chrono::duration<double> >(t4 - t3).count();
+            mvTimesMPCreat.push_back(time);
+            time = std::chrono::duration_cast<std::chrono::duration<double> >(t6 - t5).count();
+            mvTimesLocalBA.push_back(time);
+            time = std::chrono::duration_cast<std::chrono::duration<double> >(t7 - t6).count();
+            mvTimesKFCulling.push_back(time);
+            time = std::chrono::duration_cast<std::chrono::duration<double> >(t8 - t1).count();
+            mvTimesLMTotal.push_back(time);
         }
         else if(Stop())
         {
@@ -225,7 +251,7 @@ void LocalMapping::MapPointCulling()
 void LocalMapping::CreateNewMapPoints()
 {   
     if(rType >= 2)
-        cout << "[Create Nuew MapPoints]" << endl;
+        cout << "[Create New MapPoints]" << endl;
     // Retrieve neighbor keyframes in covisibility graph
     int nn = 10;
     if(mbMonocular)
@@ -823,6 +849,50 @@ bool LocalMapping::isFinished()
 {
     unique_lock<mutex> lock(mMutexFinish);
     return mbFinished;
+}
+
+void LocalMapping::PrintTable1()
+{
+    printf("\n           [ LOCAL MAPPING ]\n");
+
+    printf("%19s", "KF Insertion | ");
+    PrintTable1Value(mvTimesKFInsert);
+
+    printf("%19s", "MP Culling | ");
+    PrintTable1Value(mvTimesMPCulling);
+
+    printf("%19s", "MP Creation | ");
+    PrintTable1Value(mvTimesMPCreat);
+
+    printf("%19s", "Local BA | ");
+    PrintTable1Value(mvTimesLocalBA);
+
+    printf("%19s", "KF Culling | ");
+    PrintTable1Value(mvTimesKFCulling);
+
+    printf("%19s", "Total | ");
+    PrintTable1Value(mvTimesLMTotal);
+
+    cout << "-----------------------------------------\n\n" << flush;
+}
+
+void LocalMapping::PrintTable1Value(vector<float> &times)
+{
+    sort(times.begin(), times.end());
+    int len = times.size();
+    float median = times[len/2];
+
+    float totaltime(0);
+    for(int i=0; i<len; i++)
+        totaltime += times[i];
+    float mean = totaltime/len;
+
+    float var(0);
+    for (int i=0; i<len; i++)
+        var += (mean-times[i])*(mean-times[i]);
+    float std = sqrt(var/len);
+
+    printf("%7.2f%7.2f%7.2f\n", (median*1000), (mean*1000), (std*1000));
 }
 
 } //namespace ORB_SLAM

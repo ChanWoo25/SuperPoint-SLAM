@@ -67,6 +67,7 @@ public:
     // 2. Extract the keypoint from A and undistort it.
     // 3. Assign Keypoints to the grid map.
     Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel, const double &timeStamp, SuperPointSLAM::SPDetector* extractor, SuperPointSLAM::SPVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth);
+    Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel, const double &timeStamp, SuperPointSLAM::SPDetector* extractor, SuperPointSLAM::SPVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, double &timeExt);
 
     // Extract ORB feature on the image.
     void ExtractORB(int flag, const cv::Mat &im);

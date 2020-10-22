@@ -287,6 +287,69 @@ Frame::Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> 
     AssignFeaturesToGrid();
 }
 
+Frame::Frame(const cv::Mat &imGray, std::shared_ptr<SuperPointSLAM::SuperPoint> mpSPModel, const double &timeStamp, 
+            SuperPointSLAM::SPDetector* extractor, SuperPointSLAM::SPVocabulary* voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth, double &timeExt)
+    :mpORBvocabulary(NULL), mpORBextractorLeft(static_cast<ORBextractor*>(NULL)),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
+     mpSPVocabulary(voc),mpSPDetector(extractor), mpSPmodel(mpSPModel), 
+     mTimeStamp(timeStamp), mK(K.clone()),mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth)
+{
+    // Frame ID
+    mnId=nNextId++;
+
+    // Scale Level Info
+    mnScaleLevels = mpSPDetector->GetLevels();
+    mfScaleFactor = mpSPDetector->GetScaleFactor();
+    mfLogScaleFactor = log(mfScaleFactor);
+    mvScaleFactors = mpSPDetector->GetScaleFactors();
+    mvInvScaleFactors = mpSPDetector->GetInverseScaleFactors();
+    mvLevelSigma2 = mpSPDetector->GetScaleSigmaSquares();
+    mvInvLevelSigma2 = mpSPDetector->GetInverseScaleSigmaSquares();
+
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+
+    // SuperPoint Keypoint Detection
+    ExtractSP(imGray);
+
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+    timeExt = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+
+    N = mvKeys.size();
+
+    if(mvKeys.empty())
+        return;
+
+    UndistortKeyPoints();
+
+    // Set no stereo information
+    mvuRight = vector<float>(N,-1);
+    mvDepth = vector<float>(N,-1);
+
+    mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));
+    mvbOutlier = vector<bool>(N,false);
+
+    // This is done only for the first Frame (or after a change in the calibration)
+    if(mbInitialComputations)
+    {
+        ComputeImageBounds(imGray);
+
+        mfGridElementWidthInv=static_cast<float>(FRAME_GRID_COLS)/static_cast<float>(mnMaxX-mnMinX);
+        mfGridElementHeightInv=static_cast<float>(FRAME_GRID_ROWS)/static_cast<float>(mnMaxY-mnMinY);
+
+        fx = K.at<float>(0,0);
+        fy = K.at<float>(1,1);
+        cx = K.at<float>(0,2);
+        cy = K.at<float>(1,2);
+        invfx = 1.0f/fx;
+        invfy = 1.0f/fy;
+
+        mbInitialComputations=false;
+    }
+
+    mb = mbf/fx;
+
+    AssignFeaturesToGrid();
+}
+
 void Frame::AssignFeaturesToGrid()
 {
     int nReserve = 0.5f*N/(FRAME_GRID_COLS*FRAME_GRID_ROWS);
@@ -316,7 +379,7 @@ void Frame::ExtractSP(const cv::Mat &img)
 {
     mpSPDetector->detect(img, mpSPmodel, mvKeys, mDescriptors, mnScaleLevels);
 
-    std::cout << "nKeypoints: " << mvKeys.size() << endl;
+//    std::cout << "nKeypoints: " << mvKeys.size() << endl;
 }
 
 void Frame::SetPose(cv::Mat Tcw)
