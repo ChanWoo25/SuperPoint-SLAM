@@ -56,7 +56,7 @@ SPMatcher.windowSize: 15
 Tracking.LocalMapConstraint1: 50
 Tracking.LocalMapConstraint2: 30
 
-LocalMapper.cosParallaxRays: 0.9999
+LocalMapper.cosParallaxRays: 0.9998
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters

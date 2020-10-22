@@ -1272,7 +1272,7 @@ bool Tracking::TrackLocalMap()
 
 bool Tracking::NeedNewKeyFrame()
 {
-    if(rType>=1)
+    if(rType>=2)
         cout << "Check whether New KeyFrame is needed." << endl;
 
     // NoUse
