@@ -43,6 +43,7 @@ LocalMapping::LocalMapping(Map *pMap, const float bMonocular, const cv::FileStor
     mLevelup = (int)(*pfsSettings)["SPMatcher.levelup"];
     rType = (int)(*pfsSettings)["System.RunType"];
     MaxCosParallaxRays = (*pfsSettings)["LocalMapper.cosParallaxRays"];
+    CullingRatio = (*pfsSettings)["LocalMapper.CullingRatio"];
 }
 
 void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
@@ -124,6 +125,8 @@ void LocalMapping::Run()
             mvTimesKFCulling.push_back(time);
             time = std::chrono::duration_cast<std::chrono::duration<double> >(t8 - t1).count();
             mvTimesLMTotal.push_back(time);
+
+            cout << "Local Mapping time: " << time << endl;
         }
         else if(Stop())
         {
@@ -732,7 +735,7 @@ void LocalMapping::KeyFrameCulling()
             continue;
         const vector<MapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 
-        int nObs = 3;
+        int nObs = 3; // For SuperPoint-SLAM 3
         const int thObs=nObs;
         int nRedundantObservations=0;
         int nMPs=0;
@@ -779,7 +782,8 @@ void LocalMapping::KeyFrameCulling()
         }  
 
         // for superpoint-slam
-        if(nRedundantObservations>0.7*nMPs) // 0.9
+        
+        if(nRedundantObservations>CullingRatio*nMPs) // 0.9
         {
             pKF->SetBadFlag();
             cnt++;
@@ -853,46 +857,49 @@ bool LocalMapping::isFinished()
     return mbFinished;
 }
 
-void LocalMapping::PrintTable1()
+void LocalMapping::PrintTable1(vector<float> &record)
 {
     printf("\n           [ LOCAL MAPPING ]\n");
 
     printf("%19s", "KF Insertion | ");
-    PrintTable1Value(mvTimesKFInsert);
+    PrintTable1Value(mvTimesKFInsert, record);
 
     printf("%19s", "MP Culling | ");
-    PrintTable1Value(mvTimesMPCulling);
+    PrintTable1Value(mvTimesMPCulling, record);
 
     printf("%19s", "MP Creation | ");
-    PrintTable1Value(mvTimesMPCreat);
+    PrintTable1Value(mvTimesMPCreat, record);
 
     printf("%19s", "Local BA | ");
-    PrintTable1Value(mvTimesLocalBA);
+    PrintTable1Value(mvTimesLocalBA, record);
 
     printf("%19s", "KF Culling | ");
-    PrintTable1Value(mvTimesKFCulling);
+    PrintTable1Value(mvTimesKFCulling, record);
 
     printf("%19s", "Total | ");
-    PrintTable1Value(mvTimesLMTotal);
+    PrintTable1Value(mvTimesLMTotal, record);
 
     cout << "-----------------------------------------\n\n" << flush;
 }
 
-void LocalMapping::PrintTable1Value(vector<float> &times)
+void LocalMapping::PrintTable1Value(vector<float> &times, vector<float> &record)
 {
     sort(times.begin(), times.end());
     int len = times.size();
     float median = times[len/2];
+    record.push_back(median*1000);
 
     float totaltime(0);
     for(int i=0; i<len; i++)
         totaltime += times[i];
     float mean = totaltime/len;
+    record.push_back(mean*1000);
 
     float var(0);
     for (int i=0; i<len; i++)
         var += (mean-times[i])*(mean-times[i]);
     float std = sqrt(var/len);
+    record.push_back(std*1000);
 
     printf("%7.2f%7.2f%7.2f\n", (median*1000), (mean*1000), (std*1000));
 }

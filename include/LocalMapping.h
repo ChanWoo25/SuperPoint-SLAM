@@ -79,7 +79,7 @@ public:
     int mLevelup;
     int rType;
     float MaxCosParallaxRays;
-
+    float CullingRatio;
     vector<float> mvTimesKFInsert;
     vector<float> mvTimesMPCulling;
     vector<float> mvTimesMPCreat;
@@ -87,8 +87,8 @@ public:
     vector<float> mvTimesKFCulling;
     vector<float> mvTimesLMTotal;
 
-    void PrintTable1();
-    void PrintTable1Value(vector<float> &times);
+    void PrintTable1(vector<float> &record);
+    void PrintTable1Value(vector<float> &times, vector<float> &record);
 
 protected:
 

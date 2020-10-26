@@ -42,9 +42,9 @@ void LoadImages(const string &strFile, vector<string> &vstrImageFilenames,
  */
 int main(int argc, char **argv)
 {
-    if(argc != 4)
+    if(argc != 5)
     {
-        cerr << endl << "Usage: ./sp_mono_tum path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./sp_mono_tum path_to_vocabulary path_to_settings path_to_sequence repeat_num" << endl;
         return 1;
     }
 
@@ -58,6 +58,9 @@ int main(int argc, char **argv)
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::SP_MONOCULAR,true);
+
+    cv::FileStorage f(cv::String(argv[2]).c_str(), cv::FileStorage::READ);
+    double fps = f["System.Fps"];
 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
@@ -115,16 +118,25 @@ int main(int argc, char **argv)
         else if(ni>0)
             T = tframe-vTimestamps[ni-1];
 
-        // if(ttrack<T)
-        //     usleep((T-ttrack)*1e6);
-
-        if(ttrack < 0.1)
-            usleep((0.1 - ttrack)*1e6);
+        cout << "Tracking time: " << ttrack << endl;
+        
+        if(fps == 0.0) fps = T;
+        
+        if(ttrack < fps)
+        {
+            usleep((fps - ttrack)*1e6);
+        }
 
     }
 
+    // // Stop all threads
+    // SLAM.Shutdown(vTimesTrack);
     // Stop all threads
-    SLAM.Shutdown(vTimesTrack);
+    string argv4 = argv[4];
+    string output = "tum_output_" + argv4 + ".txt";
+    vector<float> record;
+    SLAM.Shutdown(vTimesTrack, output, record);
+
 
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
@@ -136,9 +148,28 @@ int main(int argc, char **argv)
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
     cout << "-------" << endl << endl;
+    record.push_back(vTimesTrack[nImages/2]);
+    record.push_back(totaltime/nImages);
 
-    // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("TUM-Trajectory.txt");
+
+    {   // File Output
+        string outputPath("/home/leecw/Reps/SuperPointSLAM/");
+        outputPath += output;
+        ofstream output(outputPath);
+        // ofstream more_output(outputPath + "_detail.txt");  && more_output.is_open()
+        if(output.is_open())
+        {
+            for(int i=0; i<record.size(); i++)
+            {
+                output << record[i] << endl;
+            }
+
+            output.close();
+            // more_output.close();
+        }
+    }
+
+    SLAM.SaveKeyFrameTrajectoryTUM("tum_" + argv4 + ".txt");        // Save camera trajectory
 
     return 0;
 }

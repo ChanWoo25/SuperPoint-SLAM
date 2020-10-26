@@ -1,0 +1,56 @@
+Tracking 
+      
+Extaction                                           
+43.348
+86.702
+86.982
+
+Inital Pose Est.
+88.808
+90.69
+91.712            
+
+Track Local Map   
+94.658
+97.5
+98.066       
+                   
+Total      
+149.698
+200.896
+208.476                         
+
+Local Mapping                               
+KF insertion                                
+MP Culling                              
+MP Creation                             
+Local BA                                
+KF Culling                              
+Total                               
+
+Matching Ratio                                          
+
+Median  Tracking Time                                       
+Mean    Tracking Time    
+241.686
+273.836
+279.056
+279.086
+279.116
+279.13
+284.968
+290.598
+291.992
+348.236
+404.462
+426.726
+431.326
+436
+438.234
+566.794
+691.05
+725.598
+760.585
+760.704
+760.756
+760.807

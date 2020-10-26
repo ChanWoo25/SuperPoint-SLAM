@@ -1,0 +1,39 @@
+
+01: Lost, 키프레임 만드는 시간 부족
+
+System.Fps: 0.1
+SPDetector.scaleFactor: 2
+SPDetector.nLevels: 1
+SPDetector.IniThresSP: 0.015
+SPDetector.MinThresSP: 0.05
+SPMatcher.levelup: 0
+SPMatcher.windowSize: 15
+
+-------------    Table 1    -------------
+              [ TRACKING ]
+       Operation |  Median   Mean   Std
+  ORB extraction |   67.23  67.24   0.57
+Initial Pose Est.|    1.94   4.60   8.41
+ Track Local Map |    4.32   3.97   1.35
+           Total |   70.16  71.14  10.02
+
+           [ LOCAL MAPPING ]
+    KF Insertion |   46.14  46.08   8.51
+      MP Culling |    0.07   0.07   0.03
+     MP Creation |    9.82   9.51   1.79
+        Local BA |  138.31 126.28  49.00
+      KF Culling |   11.13  10.68   4.93
+           Total |  253.33 235.24  71.05
+-----------------------------------------
+
+-----------------------------    Table 2    -----------------------------
+                            [ Loop Closing ]
+                          |Loop Detection(ms)|Loop Correction(s)|
+Loop | KeyFrames EG Edges | Candidates    ST |  Fusion   EG Opt | Total
+-------------------------------------------------------------------------
+mean match ratio: 22.6258%
+Local Mapping time: 0.294135
+median tracking time: 0.0701591
+mean tracking time: 0.0711426
+
+=========================================================================

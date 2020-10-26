@@ -6,7 +6,28 @@
 
 
 # Kitti Sequence [00]
-# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI00-02.yaml ~/Dataset/dataset/sequences/00
+#  ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI00-02.yaml ~/Dataset/dataset/sequences/00
+
+
+# Kitti Sequence [04]
+./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_demo
+sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_v5_b
+# sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_v4_c
+# sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_v4_d
+# sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_v4_e
+
 
 # Kitti Sequence [05]
-Examples/Monocular/mono_kitti Vocabulary/ORBvoc.txt Examples/Monocular/KITTI04-12.yaml ~/data_odometry_gray/dataset/sequences/05
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_v6_a
+# sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_v6_b
+# sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_v6_c
+# sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_v6_d
+# sleep 10s
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_v6_e

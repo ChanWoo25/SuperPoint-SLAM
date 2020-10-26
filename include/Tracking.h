@@ -102,6 +102,7 @@ public:
     int windowSize;
     int LocalMapConstraint1;
     int LocalMapConstraint2;
+    float fThRefRatio;
 
     // Current Frame
     Frame mCurrentFrame;
@@ -131,11 +132,11 @@ public:
     vector<float> mvTimesIniPose;
     vector<float> mvTimesTrackLM;
 
-    void PrintTable1(vector<float> &vTimesTrackTotal);
-    void PrintTable1Value(vector<float> &times);
+    void PrintTable1(vector<float> &vTimesTrackTotal, vector<float> &record);
+    void PrintTable1Value(vector<float> &times, vector<float> &record);
 
     vector<float> mvMatchRatio;
-    void PrintMatchRatio();
+    void PrintMatchRatio(vector<float> &record);
 
 protected:
 

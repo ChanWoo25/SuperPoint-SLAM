@@ -37,9 +37,9 @@ void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames,
 
 int main(int argc, char **argv)
 {
-    if(argc != 4)
+    if(argc != 5)
     {
-        cerr << endl << "Usage: ./mono_kitti path_to_vocabulary path_to_settings path_to_sequence" << endl;
+        cerr << endl << "Usage: ./mono_kitti path_to_vocabulary path_to_settings path_to_sequence repeat_num" << endl;
         return 1;
     }
 
@@ -101,12 +101,14 @@ int main(int argc, char **argv)
         else if(ni>0)
             T = tframe-vTimestamps[ni-1];
 
+        cout << "Tracking time: " << ttrack << endl;
+
         if(ttrack<T)
             usleep((T-ttrack)*1e6);
     }
 
     // Stop all threads
-    SLAM.Shutdown();
+    SLAM.Shutdown(vTimesTrack);
 
     // Tracking time statistics
     sort(vTimesTrack.begin(),vTimesTrack.end());
@@ -115,12 +117,14 @@ int main(int argc, char **argv)
     {
         totaltime+=vTimesTrack[ni];
     }
-    cout << "-------" << endl << endl;
     cout << "median tracking time: " << vTimesTrack[nImages/2] << endl;
     cout << "mean tracking time: " << totaltime/nImages << endl;
+    cout << "-------" << endl << endl;
 
-    // Save camera trajectory
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");    
+    string s1(1, argv[3][39]);
+    string s2(1, argv[4][0]);
+    string s3(1, argv[4][1]);
+    SLAM.SaveKeyFrameTrajectoryTUM("kitti_0"+ s1 + "_" + s2 + s3 + ".txt");        // Save camera trajectory
 
     return 0;
 }

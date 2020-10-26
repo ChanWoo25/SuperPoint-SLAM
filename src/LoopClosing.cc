@@ -280,7 +280,7 @@ bool LoopClosing::ComputeSim3()
     vector<Sim3Solver*> vpSim3Solvers;
 
     if(mpSPVocabulary!=NULL)
-        spmatcher = new SuperPointSLAM::SPMatcher(0.9, false); /* For SuperPoint-SLAM  0.75 -> 0.9*/
+        spmatcher = new SuperPointSLAM::SPMatcher(0.75, false); /* For SuperPoint-SLAM  0.75 -> 0.9*/
     else
         matcher = new ORBmatcher(0.75, true);
 
@@ -655,7 +655,7 @@ void LoopClosing::SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap)
     SuperPointSLAM::SPMatcher *spmatcher(NULL);
     ORBmatcher *matcher(NULL);
     if(mpSPVocabulary!=NULL)
-        spmatcher = new SuperPointSLAM::SPMatcher(0.9, false); /* For SuperPoint-SLAM  0.8 -> 0.9*/
+        spmatcher = new SuperPointSLAM::SPMatcher(0.8, false); /* For SuperPoint-SLAM  0.8 -> 0.9*/
     else
         matcher = new ORBmatcher(0.8, true);
 
@@ -857,11 +857,11 @@ void LoopClosing::PrintTable2()
     printf("%6s%10s%11s%11s%8s%8s%11s%7s", "Loop |", "KeyFrames", "EG Edges |", "Candidates", "ST |", "Fusion", "EG Opt |","Total\n");
 
     int numloop = mvKeyFrames.size();
-
+    
     for(int loop=0; loop<numloop; loop++)
     {
         printf("%4d |", loop+1);
-        printf("%10d", mvKeyFrames[loop]);
+        printf("%10d", mvKeyFrames[loop]);  
         printf("%9d |", mvEGEdges[loop]);
         printf("%11.2f", mvTimesCandidate[loop]*1000);
         printf("%6.2f |", mvTimesST[loop]*1000);
@@ -870,6 +870,7 @@ void LoopClosing::PrintTable2()
         printf("%6.2f\n", mvTimesLCTotal[loop]);
     }
     cout << "-------------------------------------------------------------------------" << endl;
+
 }
 
 } //namespace ORB_SLAM

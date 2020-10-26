@@ -124,7 +124,7 @@ public:
     // It waits until all threads have finished.
     // This function must be called before saving the trajectory.
     void Shutdown();
-    void Shutdown(vector<float> &vTimesTrack);
+    void Shutdown(vector<float> &vTimesTrack, string &output, vector<float> &record);
 
     // Save camera trajectory in the TUM RGB-D dataset format.
     // Only for stereo and RGB-D. This method does not work for monocular.

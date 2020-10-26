@@ -440,12 +440,12 @@ void System::Shutdown()
         pangolin::BindToContext("ORB-SLAM2: Map Viewer");
 }
 
-void System::Shutdown(vector<float> &vTimesTrack)
+void System::Shutdown(vector<float> &vTimesTrack, string &output, vector<float> &record)
 {
-    mpTracker->PrintTable1(vTimesTrack);
-    mpLocalMapper->PrintTable1();
+    mpTracker->PrintTable1(vTimesTrack, record);
+    mpLocalMapper->PrintTable1(record);
     mpLoopCloser->PrintTable2();
-    mpTracker->PrintMatchRatio();
+    mpTracker->PrintMatchRatio(record);
     
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();

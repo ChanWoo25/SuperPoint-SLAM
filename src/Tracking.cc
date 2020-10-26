@@ -80,6 +80,7 @@ Tracking::Tracking(System *pSys, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawe
     mbf = fSettings["Camera.bf"];
 
     float fps = fSettings["Camera.fps"];
+    fThRefRatio = fSettings["Tracking.thRefRatio"];
     if(fps==0)
         fps=30;
 
@@ -412,6 +413,8 @@ void Tracking::Track()
 
             if(mState==LOST)
             {
+                cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+                cout << "\n\nLOST\n\n";
                 bOK = Relocalization();
             }
             else
@@ -790,7 +793,7 @@ void Tracking::SPMonocularInitialization()
 
         // Find correspondences nn_ratio:0.9, Check orientation:false.
         SuperPointSLAM::SPMatcher matcher(0.9,false); // For SuperPoint-SLAM 0.9-> 0.95
-        int sp_window_size=15; // SPSLAM Param
+        int sp_window_size=100; // SPSLAM Param
         int nmatches = matcher.SearchForInitialization(mInitialFrame,mCurrentFrame,mvbPrevMatched,mvIniMatches,sp_window_size);
 
         // Check if there are enough correspondences
@@ -1328,8 +1331,11 @@ bool Tracking::NeedNewKeyFrame()
     if(nKFs<2)
         thRefRatio = 0.4f;
 
-    if(mSensor==System::MONOCULAR || mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
+    if(mSensor==System::MONOCULAR)
         thRefRatio = 0.9f;
+
+    if(mSensor==System::SP_MONOCULAR) // For SuperPoint-SLAM
+        thRefRatio = fThRefRatio;
 
     // Condition 1a: More than "MaxFrames" have passed from last keyframe insertion
     const bool c1a = mCurrentFrame.mnId>=mnLastKeyFrameId+mMaxFrames;
@@ -1951,7 +1957,7 @@ void Tracking::InformOnlyTracking(const bool &flag)
     mbOnlyTracking = flag;
 }
 
-void Tracking::PrintTable1(vector<float> &vTimesTrackTotal)
+void Tracking::PrintTable1(vector<float> &vTimesTrackTotal, vector<float> &record)
 {
     cout << "\n-------------    Table 1    -------------" << endl;
 
@@ -1959,45 +1965,51 @@ void Tracking::PrintTable1(vector<float> &vTimesTrackTotal)
     printf("%19s%7s%7s%7s", "Operation | ", "Median", "Mean", "Std\n");
 
     printf("%19s", "ORB extraction | ");
-    PrintTable1Value(mvTimesExt);
+    PrintTable1Value(mvTimesExt, record);
 
     printf("%19s", "Initial Pose Est.| ");
-    PrintTable1Value(mvTimesIniPose);
+    PrintTable1Value(mvTimesIniPose, record);
 
     printf("%19s", "Track Local Map | ");
-    PrintTable1Value(mvTimesTrackLM);
+    PrintTable1Value(mvTimesTrackLM, record);
 
     printf("%19s", "Total | ");
-    PrintTable1Value(vTimesTrackTotal);
+    PrintTable1Value(vTimesTrackTotal, record);
 }
 
-void Tracking::PrintTable1Value(vector<float> &times)
+void Tracking::PrintTable1Value(vector<float> &times, vector<float> &record)
 {
     sort(times.begin(), times.end());
     int len = times.size();
-    float median = times[len/2];
+    float median = times[len/2]; 
+    record.push_back(median*1000);
 
     float totaltime(0);
     for(int i=0; i<len; i++)
         totaltime += times[i];
-    float mean = totaltime/len;
+    float mean = totaltime/len; 
+    record.push_back(mean*1000);
 
     float var(0);
     for (int i=0; i<len; i++)
         var += (mean-times[i])*(mean-times[i]);
-    float std = sqrt(var/len);
+    float std = sqrt(var/len); 
+    record.push_back(std*1000);
 
     printf("%7.2f%7.2f%7.2f\n", (median*1000), (mean*1000), (std*1000));
 }
 
-void Tracking::PrintMatchRatio()
+void Tracking::PrintMatchRatio(vector<float> &record)
 {
     float sum(0);
-    float n = mvMatchRatio.size();
+    float n = mvMatchRatio.size(); 
 
     for(float i=0; i<n; i++)
         sum += mvMatchRatio[i];
-    cout << "mean match ratio: " << (sum/n)/10 << "%" << endl;    
+
+    float ratio = (sum/n)/10;
+    record.push_back(ratio);
+    cout << "mean match ratio: " << ratio << "%" << endl;    
 }
 
 } //namespace ORB_SLAM
