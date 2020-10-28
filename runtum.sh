@@ -6,17 +6,17 @@
 ####             FR1             ####
 #####################################
 
-# fr1_xyz
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_xyz/
+# fr1_xyz 
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_xyz/ Demo_0
 
-# fr2_xyz
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_xyz/
+# fr2_xyz 
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_xyz/ fr2_xyz_demo
 
 # fr1_floor
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_floor/
 
 # fr1_desk
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_desk/
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_desk/ fr1_desk_demo
 
 # fr2_360_kidnap
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_360_kidnap/
@@ -35,7 +35,7 @@
 #####################################
 
 # fr3_nstr_tex_far
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_nstr_tex_far/
+Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_nstr_tex_far/ fr3_nstr_tex_far_demo
 
 # fr3_nstr_tex_near
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_nstr_tex_near/
@@ -59,7 +59,7 @@
 #####################################
 
 # fr2_desk_person
-Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_desk_person/ demo
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_desk_person/ demo
 
 # fr3_sit_xyz
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_sit_xyz/

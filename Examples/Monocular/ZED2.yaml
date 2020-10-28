@@ -5,58 +5,51 @@
 #--------------------------------------------------------------------------------------------
 
 # Camera calibration and distortion parameters (OpenCV) 
-Camera.fx: 517.306408
-Camera.fy: 516.469215
-Camera.cx: 318.643040
-Camera.cy: 255.313989
+Camera.fx: 530.75
+Camera.fy: 530.595
+Camera.cx: 631.345
+Camera.cy: 366.435
 
-Camera.k1: 0.262383
-Camera.k2: -0.953104
-Camera.p1: -0.005358
-Camera.p2: 0.002628
-Camera.k3: 1.163314
+# Camera.k1: 0.0
+# Camera.k2: 0.0
+# Camera.p1: 0.0
+# Camera.p2: 0.0
+
+Camera.k1: -0.0448108
+Camera.k2: 0.013851
+Camera.p1: -0.000441558
+Camera.p2: -0.000274951
 
 # Camera frames per second 
-Camera.fps: 30.0
+Camera.fps: 10.0
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
-# 필요한 파라미터들...
 
 #--------------#
 #  For System  #
 #--------------#
 
-
 # 0: Release,  1:Debug(Print some information for debuggig),  2:Full Debug(Print more information for debuggig)
 System.RunType: 0
-System.Fps: 0.1 # 0.0
-  
+System.Fps: 0.15
+
 #------------------#
 #  For SPDetector  #
 #------------------#
-
-# SuperPoint Detector: Number of features per image
-# SPDetector.nFeatures: 500
 
 # SuperPoint Detector: Scale factor between levels in the scale pyramid 
 SPDetector.scaleFactor: 2
 
 # SuperPoint Detector: Number of levels in the scale pyramid
 SPDetector.nLevels: 2
-
-## ORB Extractor: Fast threshold
-## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
-## Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
-## You can lower these values if your images have low contrast
-SPDetector.IniThresSP: 0.015
-SPDetector.MinThresSP: 0.03
-
+SPDetector.IniThresSP: 0.04
+SPDetector.MinThresSP: 0.04
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
 SPMatcher.levelup: 0
-SPMatcher.windowSize: 20
+SPMatcher.windowSize: 10
 
 Tracking.LocalMapConstraint1: 50
 Tracking.LocalMapConstraint2: 30
@@ -64,18 +57,17 @@ Tracking.thRefRatio: 0.8
 
 LocalMapper.cosParallaxRays: 0.99999
 LocalMapper.CullingRatio: 0.95
-
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
 #--------------------------------------------------------------------------------------------
-Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameSize: 0.1
 Viewer.KeyFrameLineWidth: 1
-Viewer.GraphLineWidth: 0.9
+Viewer.GraphLineWidth: 1
 Viewer.PointSize: 2
-Viewer.CameraSize: 0.08
-Viewer.CameraLineWidth: 3
+Viewer.CameraSize: 0.15
+Viewer.CameraLineWidth: 2
 Viewer.ViewpointX: 0
-Viewer.ViewpointY: -0.7
-Viewer.ViewpointZ: -1.8
-Viewer.ViewpointF: 500
+Viewer.ViewpointY: -10
+Viewer.ViewpointZ: -0.1
+Viewer.ViewpointF: 2000
 

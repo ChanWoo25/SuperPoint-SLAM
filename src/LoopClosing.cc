@@ -596,6 +596,7 @@ void LoopClosing::CorrectLoop()
     // into the current keyframe and neighbors using corrected poses.
     // Fuse duplications.
     SearchAndFuse(CorrectedSim3);
+    cout << "SearchAndFuse" << endl;
 
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
     mTempTime[1] = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
@@ -624,6 +625,7 @@ void LoopClosing::CorrectLoop()
     t1 = std::chrono::steady_clock::now();
     // Optimize graph
     Optimizer::OptimizeEssentialGraph(mpMap, mpMatchedKF, mpCurrentKF, NonCorrectedSim3, CorrectedSim3, LoopConnections, mbFixScale);
+    cout << "OptimizeEssentialGraph" << endl;
 
     t2 = std::chrono::steady_clock::now();
     mTempTime[2] = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
@@ -639,6 +641,7 @@ void LoopClosing::CorrectLoop()
     mbFinishedGBA = false;
     mbStopGBA = false;
     mpThreadGBA = new thread(&LoopClosing::RunGlobalBundleAdjustment,this,mpCurrentKF->mnId);
+    cout << "RunGlobalBundleAdjustment" << endl;
 
     mvKeyFrames.push_back(mpMap->KeyFramesInMap());
     mvEGEdges.push_back(mpMap->GetEdgeNumByWeight());

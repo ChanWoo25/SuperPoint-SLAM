@@ -42,8 +42,8 @@ SPDetector.scaleFactor: 2
 
 # SuperPoint Detector: Number of levels in the scale pyramid
 SPDetector.nLevels: 1
-SPDetector.IniThresSP: 0.03
-SPDetector.MinThresSP: 0.02
+SPDetector.IniThresSP: 0.015
+SPDetector.MinThresSP: 0.03
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
 SPMatcher.levelup: 0
@@ -51,7 +51,7 @@ SPMatcher.windowSize: 15
 
 Tracking.LocalMapConstraint1: 50
 Tracking.LocalMapConstraint2: 30
-Tracking.thRefRatio: 0.6
+Tracking.thRefRatio: 0.8
 
 LocalMapper.cosParallaxRays: 0.99999
 LocalMapper.CullingRatio: 0.95
