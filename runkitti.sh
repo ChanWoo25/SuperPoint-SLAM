@@ -9,8 +9,8 @@
 #  ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI00-02.yaml ~/Dataset/dataset/sequences/00
 
 
-# Kitti Sequence [04] <= Kitti 4번 데모 실행
-./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_demo
+# Kitti Sequence [04] 
+# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_demo
 # sleep 10s
 # ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_v5_b
 # sleep 10s
@@ -21,8 +21,24 @@
 # ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/04 04_v4_e
 
 
-# Kitti Sequence [05]
-# ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_Demo
+# Kitti Sequence [05] => Kitti 5번 데모 실행 <=
+./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_Demo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # sleep 10s
 # ./Examples/Monocular/sp_mono_kitti Voca/tempVoc.txt ./Examples/Monocular/SPKITTI04-12.yaml ~/Dataset/dataset/sequences/05 05_v6_b
 # sleep 10s

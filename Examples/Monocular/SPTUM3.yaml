@@ -40,7 +40,7 @@ System.Fps: 0.0
 SPDetector.scaleFactor: 2
 
 # SuperPoint Detector: Number of levels in the scale pyramid
-SPDetector.nLevels: 2
+SPDetector.nLevels: 1
 
 ## ORB Extractor: Fast threshold
 ## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
@@ -52,7 +52,7 @@ SPDetector.MinThresSP: 0.02
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
 SPMatcher.levelup: 0
-SPMatcher.windowSize: 20
+SPMatcher.windowSize: 10
 
 Tracking.LocalMapConstraint1: 50
 Tracking.LocalMapConstraint2: 30

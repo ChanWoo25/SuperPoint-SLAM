@@ -7,10 +7,10 @@
 #####################################
 
 # fr1_xyz 
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_xyz/ Demo_0
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM_fr1_xyz.yaml /home/leecw/Dataset/TUM/fr1_xyz/ Demo_0
 
 # fr2_xyz 
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_xyz/ fr2_xyz_demo
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM_fr2_xyz.yaml /home/leecw/Dataset/TUM/fr2_xyz/ fr2_xyz_demo
 
 # fr1_floor
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM1.yaml /home/leecw/Dataset/TUM/fr1_floor/
@@ -23,7 +23,7 @@
 # Examples/Monocular/sp_mono_tum Voca/SPVoc1.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_360_kidnap/
 
 # fr2_desk # Good
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_desk/ a
+Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_desk/ a
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_desk/ b
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM2.yaml /home/leecw/Dataset/TUM/fr2_desk/ c
 
@@ -35,7 +35,7 @@
 #####################################
 
 # fr3_nstr_tex_far
-Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_nstr_tex_far/ fr3_nstr_tex_far_demo
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_nstr_tex_far/ fr3_nstr_tex_far_demo
 
 # fr3_nstr_tex_near
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_nstr_tex_near/
@@ -68,7 +68,7 @@ Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_sit_halfsph/
 
 # fr3_walk_xyz
-# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_walk_xyz/
+# Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_walk_xyz/ fr3_walk_xyz_demo
 
 # fr3_walk_halfsph
 # Examples/Monocular/sp_mono_tum Voca/tempVoc.txt Examples/Monocular/SPTUM3.yaml /home/leecw/Dataset/TUM/fr3_walk_halfsph/

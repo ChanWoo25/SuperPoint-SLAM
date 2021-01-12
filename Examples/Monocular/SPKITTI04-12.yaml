@@ -29,13 +29,16 @@ Camera.RGB: 1
 #  For System  #
 #--------------#
 
-# 0: Release,  1:Debug(Print some information for debuggig),  2:Full Debug(Print more information for debuggig)
+# [RunType]
+# 0: Release,  
+# 1:Debug(Print some information for debuggig),  
+# 2:Full Debug(Print more information for debuggig)
 System.RunType: 0
 System.Fps: 0.0
 
-#------------------#
-#  For SPDetector  #
-#------------------#
+#---------------------------#
+#  For SuperPoint Detector  #
+#---------------------------#
 
 # SuperPoint Detector: Scale factor between levels in the scale pyramid 
 SPDetector.scaleFactor: 2

@@ -41,26 +41,26 @@ System.Fps: 0.0
 SPDetector.scaleFactor: 2
 
 # SuperPoint Detector: Number of levels in the scale pyramid
-SPDetector.nLevels: 1
+SPDetector.nLevels: 2
 
 ## ORB Extractor: Fast threshold
 ## Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 ## Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 ## You can lower these values if your images have low contrast
 SPDetector.IniThresSP: 0.015
-SPDetector.MinThresSP: 0.05
+SPDetector.MinThresSP: 0.03
 
 
 # ComputeSPBoW()'s transform()'s "levelup"  Parameter.
 SPMatcher.levelup: 0
-SPMatcher.windowSize: 20
+SPMatcher.windowSize: 10
 
 Tracking.LocalMapConstraint1: 50
 Tracking.LocalMapConstraint2: 30
-Tracking.thRefRatio: 0.8
+Tracking.thRefRatio: 0.6
 
 LocalMapper.cosParallaxRays: 0.99999
-LocalMapper.CullingRatio: 0.95
+LocalMapper.CullingRatio: 0.93
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
 #--------------------------------------------------------------------------------------------
