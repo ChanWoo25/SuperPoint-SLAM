@@ -3,7 +3,9 @@
 
 **Authors:** [Chanwoo Lee](https://github.com/ChanWoo25)
 
-**Note** This is my personal project. SuperPoint-SLAM is a project implemented in order to analyze the slightly modified ORB-SLAM. ORB-SLAM's license is as below:
+**Note** This is my personal project. SuperPoint-SLAM is a project to analyze the slightly modified ORB-SLAM by replacing ORB feature extractor with SuperPoint feature extractor. 
+
+ORB-SLAM's license is as below
 
 # 1. License
 
@@ -42,13 +44,16 @@ if you use ORB-SLAM2 (Stereo or RGB-D) in an academic work, please cite:
      }
 
 # 2. Prerequisites
-We have tested the library in **16.04**, but it should be easy to compile in other platforms. To build **SuperPoint-SLAM**, you need a GPU that supports CUDA 10.2 or higher. Of course, you can use a lower CUDA version by modifying the LibTorch code accordingly. However, I cannot guarantee normal operation. Also, To some extent, powerful cpu is required for real-time performance and more stable and accurate results of SuperPointSLAM.
 
-Ok, so let's first look at *the build requirements*. You can conveniently install the necessary libraries using the Basg Scripts we wrote.
-However, you can also install it yourself after looking at the official website by looking at the library list described below. If you install it yourself, **keep in mind that** we put all the important libraries in "/usr/local".
+We have tested the library in **Ubuntu 16.04**, but it would be easy to compile in other platforms. To build **SuperPoint-SLAM**, you need a GPU that supports CUDA 10.2 or higher. Of course, you can use a lower CUDA version by modifying the LibTorch code accordingly. However, I cannot guarantee normal operation. Also, To some extent, powerful cpu is required for real-time performance and more stable and accurate results of SuperPointSLAM.
+
+**So,** Let's first look at *the build requirements*. 
+
+You can conveniently install the necessary libraries using the Basg Scripts we wrote. However, you can also install it yourself after looking at the official website by looking at the library list described below. If you install it yourself, **keep in mind that** we put all the important libraries in "/usr/local" in our project.
 
 To use our scripts. Note that the order of execution matters because Eigen3 can be used other libraries' build.
-```
+
+``` bash
 git clone https://github.com/ChanWoo25/SuperPoint-SLAM.git
 cd SuperPoint-SLAM
 chmod +x INSTALL_*
@@ -77,20 +82,20 @@ We use [Pangolin](https://github.com/stevenlovegrove/Pangolin) for visualization
 We use modified versions of the [DBoW2](https://github.com/dorian3d/DBoW2) library to perform place recognition and [g2o](https://github.com/RainerKuemmerle/g2o) library to perform non-linear optimizations. Both modified libraries (which are BSD) are included in the *Thirdparty* folder.
 
 
-# 3. Building SuperPoint-SLAM library and examples
+## 3. Building SuperPoint-SLAM library and examples
 
 TODO...
 
-# 4. Monocular Examples
+## 4. Monocular Examples
 
-## TUM Dataset
+**TUM Dataset**
 
-See runtum.sh
+- See runtum.sh
 
-## KITTI Dataset  
+**KITTI Dataset**  
 
-See runkitti.sh
+- See runkitti.sh
 
-# 4. Download Link for SuperPoint-SLAM Vocabulary
-SOON
+## 4. Download Link for SuperPoint-SLAM Vocabulary
+- SOON
 
