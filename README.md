@@ -97,5 +97,6 @@ TODO...
 - See runkitti.sh
 
 ## 4. Download Link for SuperPoint-SLAM Vocabulary
-- SOON
+ Unfortunately, I lost my SuperPoint feature Vocabulary created by kitti dataset only.
+ However, you can craete your own Vocabulary using my DBoW2 code which changed to deal with SuperPoint features.
 
